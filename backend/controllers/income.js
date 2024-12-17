@@ -42,9 +42,9 @@ exports.deleteIncome = async (req, res) =>{
     const {id} = req.params;
     IncomeSchema.findByIdAndDelete(id)
         .then((income) =>{
-            res.status(200).json({message: 'Thu nhập đã bị xóa'})
+            res.status(200).json({message: 'Income Delete'})
         })
         .catch((err) =>{
-            res.status(500).json({message: 'Lỗi máy chủ'})
+            res.status(500).json({message: 'Server Error'})
         })
 }

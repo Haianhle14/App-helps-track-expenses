@@ -42,9 +42,9 @@ exports.deleteExpense = async (req, res) =>{
     const {id} = req.params;
     ExpenseSchema.findByIdAndDelete(id)
         .then((income) =>{
-            res.status(200).json({message: 'Đã xóa chi tiêu'})
+            res.status(200).json({message: 'Expense Delete'})
         })
         .catch((err) =>{
-            res.status(500).json({message: 'Lỗi máy chủ'})
+            res.status(500).json({message: 'Server Error'})
         })
 }
