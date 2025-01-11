@@ -7,11 +7,45 @@ const BASE_URL = "http://localhost:5000/api/v1/";
 
 const GlobalContext = React.createContext()
 
+
+
 export const GlobalProvider = ({children}) => {
 
     const [incomes, setIncomes] = useState([])
     const [expenses, setExpenses] = useState([])
     const [error, setError] = useState(null)
+    const [debts, setDebts] = useState([]);
+
+// Thêm khoản nợ
+    const addDebt = async (debt) => {
+        await axios.post(`${BASE_URL}add-debt`, debt)
+            .catch((err) => {
+                setError(err.response.data.message);
+            });
+        getDebts();
+    };
+
+    // Lấy danh sách khoản nợ
+    const getDebts = async () => {
+        const response = await axios.get(`${BASE_URL}get-debts`);
+        setDebts(response.data);
+        console.log(response.data);
+    };
+
+    // Xóa khoản nợ
+    const deleteDebt = async (id) => {
+        await axios.delete(`${BASE_URL}delete-debt/${id}`);
+        getDebts();
+    };
+
+    // Tính tổng số tiền nợ
+    const totalDebts = () => {
+        let totalDebt = 0;
+        debts.forEach((debt) => {
+            totalDebt += debt.amount;
+        });
+        return totalDebt;
+    };
 
     //calculate incomes
     const addIncome = async (income) => {
@@ -101,6 +135,11 @@ export const GlobalProvider = ({children}) => {
             totalExpenses,
             totalBalance,
             transactionHistory,
+            debts,
+            addDebt,
+            getDebts,
+            deleteDebt,
+            totalDebts,
             error,
             setError
         }}>
