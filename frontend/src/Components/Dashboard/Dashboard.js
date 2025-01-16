@@ -1,131 +1,141 @@
-import React, { useEffect } from 'react'
-import styled from 'styled-components'
+import React, { useEffect } from 'react';
+import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
 import History from '../../History/History';
 import { InnerLayout } from '../../styles/Layouts';
 import Chart from '../Chart/Chart';
+import PieChart from '../Chart/PieChart';
 
 function Dashboard() {
-    const {totalExpenses,incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext()
+    const {
+        totalExpenses, incomes, expenses, totalIncome, totalBalance, debts, getIncomes, getExpenses, getDebts
+    } = useGlobalContext();
 
     useEffect(() => {
-        getIncomes()
-        getExpenses()
-    }, [getIncomes, getExpenses])
+        getIncomes();
+        getExpenses();
+        getDebts();
+    }, [getIncomes, getExpenses, getDebts]);
+
+    const totalLoaned = debts.filter(debt => debt.type === 'lend').reduce((acc, curr) => acc + curr.amount, 0);
+    const totalBorrowed = debts.filter(debt => debt.type === 'borrow').reduce((acc, curr) => acc + curr.amount, 0);
 
     return (
         <DashboardStyled>
             <InnerLayout>
-                <h1>Tất cả các giao dịch</h1>
+                <h1>Tất Cả Các Giao Dịch</h1>
                 <div className="stats-con">
                     <div className="chart-con">
                         <Chart />
                         <div className="amount-con">
                             <div className="income">
                                 <h2>Tổng thu nhập</h2>
-                                <p>
-                                     {totalIncome()}đ
-                                </p>
+                                <p>{totalIncome()}đ</p>
                             </div>
                             <div className="expense">
                                 <h2>Tổng chi tiêu</h2>
-                                <p>
-                                     {totalExpenses()}đ
-                                </p>
+                                <p>{totalExpenses()}đ</p>
                             </div>
                             <div className="balance">
                                 <h2>Tổng số dư</h2>
-                                <p>
-                                     {totalBalance()}đ
-                                </p>
+                                <p>{totalBalance()}đ</p>
                             </div>
                         </div>
                     </div>
                     <div className="history-con">
                         <History />
-                        <h2 className="salary-title">Min <span>Lương</span>Max</h2>
+                        <h2 className="salary-title">Min <span>Lương</span> Max</h2>
                         <div className="salary-item">
-                            <p>
-                                {Math.min(...incomes.map(item => item.amount))}đ
-                            </p>
-                            <p>
-                                {Math.max(...incomes.map(item => item.amount))}đ
-                            </p>
+                            <p>{Math.min(...incomes.map(item => item.amount))}đ</p>
+                            <p>{Math.max(...incomes.map(item => item.amount))}đ</p>
                         </div>
-                        <h2 className="salary-title">Min <span>Chi tiêu</span>Max</h2>
+                        <h2 className="salary-title">Min <span>Chi tiêu</span> Max</h2>
                         <div className="salary-item">
-                            <p>
-                                {Math.min(...expenses.map(item => item.amount))}đ
-                            </p>
-                            <p>
-                                {Math.max(...expenses.map(item => item.amount))}đ
-                            </p>
+                            <p>{Math.min(...expenses.map(item => item.amount))}đ</p>
+                            <p>{Math.max(...expenses.map(item => item.amount))}đ</p>
                         </div>
+                        
+                    </div>
+                    <div className="pie-chart-con">
+                        <PieChart totalLoaned={totalLoaned} totalBorrowed={totalBorrowed} />
                     </div>
                 </div>
             </InnerLayout>
         </DashboardStyled>
-    )
+    );
 }
 
 const DashboardStyled = styled.div`
-    .stats-con{
+    .stats-con {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: 1fr;
         gap: 2rem;
-        .chart-con{
-            grid-column: 1 / 4;
-            height: 400px;
-            .amount-con{
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 2rem;
+
+        @media (min-width: 768px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (min-width: 1200px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .chart-con {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            
+            .amount-con {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 1rem;
                 margin-top: 2rem;
-                .income, .expense{
-                    grid-column: span 4;
-                }
-                .income, .expense, .balance{
+
+                .income, .expense, .balance {
+                    flex: 1 1 calc(33.333% - 1rem);
                     background: #FCF6F9;
                     border: 2px solid #FFFFFF;
                     box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
                     border-radius: 20px;
                     padding: 1rem;
-                    p{
-                        font-size: 3.5rem;
-                        font-weight: 700;
-                    }
-                }
+                    text-align: center;
 
-                .balance{
-                    grid-column: span 4;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    p{
-                        color: var(--color-green);
-                        opacity: 0.6;
-                        font-size: 4.5rem;
+                    h2 {
+                        font-size: 1.5rem;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    p {
+                        font-size: 2rem;
+                        font-weight: 700;
                     }
                 }
             }
         }
 
-        .history-con{
-            grid-column: 4 / -1;
-            h2{
+        .history-con {
+            grid-column: span 1;
+
+            h2 {
                 margin: 1rem 0;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
             }
-            .salary-title{
+
+            // Salary Title and Items
+            .salary-title {
                 font-size: 1.2rem;
-                span{
+                margin: 1rem 0;
+
+                span {
                     font-size: 1.8rem;
                 }
             }
-            .salary-item{
+
+            .salary-item {
                 background: #FCF6F9;
                 border: 2px solid #FFFFFF;
                 box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
@@ -134,13 +144,27 @@ const DashboardStyled = styled.div`
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                p{
+
+                p {
                     font-weight: 600;
-                    font-size: 1.6rem;
+                    font-size: 1.4rem;
                 }
+            }
+        }
+
+        .pie-chart-con {
+            grid-column: span 3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            margin-top: 2rem;
+            canvas {
+                max-width: 400px;
+                width: 100%;
             }
         }
     }
 `;
 
-export default Dashboard
+export default Dashboard;

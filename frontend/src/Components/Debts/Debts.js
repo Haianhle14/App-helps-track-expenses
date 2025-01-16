@@ -63,10 +63,10 @@ const DebtStyled = styled.div`
         margin: 1rem 0;
         font-size: 2rem;
         gap: 0.5rem;
-        span {
+        span{
             font-size: 2.5rem;
             font-weight: 800;
-            color: var(--color-red);
+            color: var(--color-green);
         }
     }
     .debt-content {

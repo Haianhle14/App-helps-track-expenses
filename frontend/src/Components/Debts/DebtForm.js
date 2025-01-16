@@ -51,8 +51,8 @@ function DebtForm() {
                     <option value="" disabled>
                         Chọn loại nợ
                     </option>
-                    <option value="borrow">Nợ vay</option>
-                    <option value="lend">Nợ cho vay</option>
+                    <option value="borrow">Vay</option>
+                    <option value="lend">Cho vay</option>
                 </select>
             </div>
             <div className="input-control">
