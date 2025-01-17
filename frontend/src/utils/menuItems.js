@@ -25,4 +25,10 @@ export const menuItems = [
         icon: handDollar,
         link: "/dashboard",
     },
+    {
+        id: 5,
+        title: "Tiết kiệm",
+        icon: handDollar,
+        link: "/dashboard",
+    },
 ]
