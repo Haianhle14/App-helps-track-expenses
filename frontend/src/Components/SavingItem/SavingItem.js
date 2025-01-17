@@ -1,11 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { money, trash } from '../../utils/Icons';
-import Button from '../Button/Button';
 
 function SavingItem({ id, goal, targetAmount, currentAmount, updateProgress, deleteItem, indicatorColor }) {
     if (!id) {
-        console.error('SavingItem received undefined id!', { goal, targetAmount, currentAmount });
+        console.error('SavingItem received undefined id!', { id, goal, targetAmount, currentAmount });
     }
     const progressPercentage = ((currentAmount / targetAmount) * 100).toFixed(2);
 
@@ -15,18 +14,14 @@ function SavingItem({ id, goal, targetAmount, currentAmount, updateProgress, del
                 {money}
             </div>
             <div className="content">
-                <h5>{goal}</h5>
+                <h5>Mục tiêu: {goal}</h5>
                 <div className="inner-content">
                     <div className="text">
-                        <p>Tiến độ: {money}{currentAmount}/{targetAmount}đ ({progressPercentage}%)</p>
+                        <p>{money} {currentAmount}/{targetAmount}đ</p>
+                        <p>Tiến độ: {progressPercentage}%</p>
                     </div>
                     <div className="btn-con">
-                        <Button
-                            text="Cập nhật"
-                            bPad={'0.5rem 1rem'}
-                            bRad={'12px'}
-                            bg={'var(--color-green)'}
-                            color={'#fff'}
+                        <UpdateButtonStyled
                             onClick={() => {
                                 const newAmount = prompt('Nhập số tiền bạn muốn thêm vào:', '0');
                                 if (newAmount && !isNaN(newAmount)) {
@@ -36,20 +31,14 @@ function SavingItem({ id, goal, targetAmount, currentAmount, updateProgress, del
                                     alert('Vui lòng nhập một số hợp lệ!');
                                 }
                             }}
-                        />
-                        <Button
-                            icon={trash}
-                            bPad={'1rem'}
-                            bRad={'50%'}
-                            bg={'var(--color-delete)'}
-                            color={'#fff'}
-                            iColor={'#fff'}
-                            hColor={'#ff6b6b'}
-                            onClick={() => {
-                                console.log('ID to delete:', id);
-                                deleteItem(id)}
-                            }
-                        />
+                        >
+                            Cập nhật tiến độ
+                        </UpdateButtonStyled>
+                        <DeleteButtonStyled
+                            onClick={() => deleteItem(id)}
+                        >
+                            <i>{trash}</i>
+                        </DeleteButtonStyled>
                     </div>
                 </div>
             </div>
@@ -88,7 +77,7 @@ const SavingItemStyled = styled.div`
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: .2rem;
+        gap: 0.5rem;
 
         h5 {
             font-size: 1.3rem;
@@ -124,7 +113,49 @@ const SavingItemStyled = styled.div`
                     opacity: 0.8;
                 }
             }
+
+            .btn-con {
+                display: flex;
+                gap: 0.5rem;
+            }
         }
+    }
+`;
+
+const UpdateButtonStyled = styled.button`
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background-color: var(--color-accent);
+    font-size: 0.9rem;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: var(--color-green);
+        transform: scale(1.05);
+    }
+`;
+
+const DeleteButtonStyled = styled.button`
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: var(--color-delete);
+        transform: scale(1.05);
+    }
+
+    i {
+        font-size: 1.2rem;
     }
 `;
 
