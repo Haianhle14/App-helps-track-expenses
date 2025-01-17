@@ -50,7 +50,7 @@ const FormStyled = styled.div`
     button {
         padding: 0.8rem 1.5rem;
         margin-bottom: 1.5rem;
-        background: var(--color-green);
+        background: var(--color-accent);
         color: white;
         border: none;
         border-radius: 8px;
@@ -58,7 +58,7 @@ const FormStyled = styled.div`
         font-size: 1rem;
 
         &:hover {
-            background: var(--color-dark-green);
+            background: var(--color-green);
         }
     }
 `;

@@ -16,6 +16,7 @@ export const GlobalProvider = ({ children }) => {
     const getSavings = useCallback( async () => {
         try {
             const response = await axios.get(`${BASE_URL}savings`);
+            console.log("Savings data received:", response.data)
             setSavings(response.data);
         } catch (err) {
             console.error('Error fetching savings:', err);
@@ -39,7 +40,7 @@ export const GlobalProvider = ({ children }) => {
     const deleteSaving = async (id) => {
         try {
             await axios.delete(`${BASE_URL}savings/${id}`);
-            setSavings((prevSavings) => prevSavings.filter((saving) => saving.id !== id));
+            getSavings()
         } catch (err) {
             console.error('Error deleting saving:', err);
         }
@@ -47,7 +48,7 @@ export const GlobalProvider = ({ children }) => {
 
     const updateSavingProgress = async (id, newAmount) => {
         try {
-            await axios.patch(`${BASE_URL}savings/${id}`, { currentAmount: newAmount });
+            await axios.put(`${BASE_URL}savings/${id}`, { currentAmount: newAmount });
             // Lấy lại danh sách tiết kiệm sau khi cập nhật
             getSavings();
         } catch (err) {
