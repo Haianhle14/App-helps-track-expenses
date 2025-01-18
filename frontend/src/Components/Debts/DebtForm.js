@@ -49,10 +49,10 @@ function DebtForm() {
                     onChange={handleInput('type')}
                 >
                     <option value="" disabled>
-                        Chọn loại nợ
+                        Chọn tùy chọn
                     </option>
-                    <option value="borrow">Vay</option>
-                    <option value="lend">Cho vay</option>
+                    <option value="borrow">Cho Vay</option>
+                    <option value="lend">Vay</option>
                 </select>
             </div>
             <div className="input-control">

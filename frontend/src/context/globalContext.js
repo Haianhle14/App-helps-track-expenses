@@ -160,9 +160,27 @@ export const GlobalProvider = ({ children }) => {
     };
 
     const transactionHistory = () => {
-        const history = [...incomes, ...expenses];
+        // Hợp nhất danh sách giao dịch với tên tiếng Việt
+        const history = [
+            ...incomes.map((income) => ({ ...income, type: 'Thu nhập' })),
+            ...expenses.map((expense) => ({ ...expense, type: 'Chi tiêu' })),
+            ...debts.map((debt) => ({ ...debt, type: 'Vay, Nợ' })),
+            ...savings.map((saving) => ({
+                ...saving,
+                type: 'Mục tiêu',
+                createdAt: saving.updatedAt || saving.createdAt, // Sử dụng updatedAt nếu có
+            })),
+        ];
+    
+        // Sắp xếp giao dịch theo ngày mới nhất
         history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         return history.slice(0, 3);
+    };
+
+    const savingsProgress = () => {
+        const totalCurrent = savings.reduce((acc, saving) => acc + saving.currentAmount, 0);
+        const totalTarget = savings.reduce((acc, saving) => acc + saving.targetAmount, 0);
+        return { totalCurrent, totalTarget };
     };
 
     // --- Lấy dữ liệu khi khởi chạy ---
@@ -203,6 +221,7 @@ export const GlobalProvider = ({ children }) => {
                 // Tổng hợp
                 totalBalance,
                 transactionHistory,
+                savingsProgress,
                 // Lỗi
                 error,
                 setError,

@@ -33,7 +33,7 @@ function DebtItem({
                 {debtCategoryIcon()}
             </div>
             <div className="content">
-                <h5>{type === 'borrow' ? `Nợ vay từ ${lender}` : `Cho ${borrower} vay`}</h5>
+                <h5>{type === 'borrow' ? `Cho ${lender} vay` : `Nợ vay từ ${borrower}`}</h5>
                 <div className="inner-content">
                     <div className="text">
                         <p>{money}{amount}đ</p>
