@@ -5,10 +5,11 @@ import History from '../../History/History';
 import { InnerLayout } from '../../styles/Layouts';
 import Chart from '../Chart/Chart';
 import PieChart from '../Chart/PieChart';
+import SavingsPieChart from '../Chart/SavingsPieChart';
 
 function Dashboard() {
     const {
-        totalExpenses, incomes, expenses, totalIncome, totalBalance, debts, getIncomes, getExpenses, getDebts
+        totalExpenses, incomes, expenses, totalIncome, totalBalance, debts, getIncomes, getExpenses, getDebts, savingsProgress
     } = useGlobalContext();
 
     useEffect(() => {
@@ -19,6 +20,7 @@ function Dashboard() {
 
     const totalLoaned = debts.filter(debt => debt.type === 'lend').reduce((acc, curr) => acc + curr.amount, 0);
     const totalBorrowed = debts.filter(debt => debt.type === 'borrow').reduce((acc, curr) => acc + curr.amount, 0);
+    const { totalCurrent, totalTarget } = savingsProgress();
 
     return (
         <DashboardStyled>
@@ -44,7 +46,7 @@ function Dashboard() {
                     </div>
                     <div className="history-con">
                         <History />
-                        <h2 className="salary-title">Min <span>Lương</span> Max</h2>
+                        <h2 className="salary-title">Min <span>Thu nhập</span> Max</h2>
                         <div className="salary-item">
                             <p>{Math.min(...incomes.map(item => item.amount))}đ</p>
                             <p>{Math.max(...incomes.map(item => item.amount))}đ</p>
@@ -58,6 +60,7 @@ function Dashboard() {
                     </div>
                     <div className="pie-chart-con">
                         <PieChart totalLoaned={totalLoaned} totalBorrowed={totalBorrowed} />
+                        <SavingsPieChart totalCurrent={totalCurrent} totalTarget={totalTarget} />
                     </div>
                 </div>
             </InnerLayout>
@@ -77,13 +80,14 @@ const DashboardStyled = styled.div`
         @media (min-width: 1200px) {
             grid-template-columns: repeat(3, 1fr);
         }
+
         .chart-con {
             grid-column: span 2;
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            
+
             .amount-con {
                 display: flex;
                 flex-wrap: wrap;
@@ -110,6 +114,10 @@ const DashboardStyled = styled.div`
                         font-weight: 700;
                     }
                 }
+
+                .balance {
+                    color: var(--color-green);
+                }
             }
         }
 
@@ -123,7 +131,6 @@ const DashboardStyled = styled.div`
                 justify-content: space-between;
             }
 
-            // Salary Title and Items
             .salary-title {
                 font-size: 1.2rem;
                 margin: 1rem 0;
@@ -153,16 +160,33 @@ const DashboardStyled = styled.div`
         .pie-chart-con {
             grid-column: span 3;
             display: flex;
-            justify-content: center;
+            flex-wrap: wrap;
+            justify-content: space-around;
             align-items: center;
             text-align: center;
-            margin-top: 2rem;
+            gap: 2rem;
+
             canvas {
                 max-width: 400px;
-                width: 100%;
+                width: 40%;
+            }
+
+            .savings-chart {
+                background: #FCF6F9;
+                border: 2px solid #FFFFFF;
+                box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+
+                width: 40%;
+                max-width: 400px;
+                text-align: center;
+
+                h2 {
+                    color: var(--color-primary);
+                }
             }
         }
     }
 `;
+
 
 export default Dashboard;
