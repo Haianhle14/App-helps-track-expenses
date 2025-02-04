@@ -1,23 +1,36 @@
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
+import { useGlobalContext } from '../../context/globalContext'; // Adjust the import path as needed
 
-const SavingsPieChart = ({ totalCurrent, totalTarget }) => {
-    const data = {
-        labels: ['Đã tiết kiệm', 'Còn lại'],
-        datasets: [
-            {
-                data: [totalCurrent, totalTarget - totalCurrent],
-                backgroundColor: ['#4caf50', '#f44336'],
-                borderWidth: 1,
-            },
-        ],
-    };
-
+const SavingsPieChart = () => {
+    const { savings } = useGlobalContext(); // Get savings data from the global context
 
     return (
         <div>
-            <h3> Thống kê mục tiêu tiết kiệm</h3>
-            <Pie data={data}/>
+            <h3>Thống kê mục tiêu tiết kiệm</h3>
+            {savings.length > 0 ? (
+                savings.map((saving, index) => {
+                    const data = {
+                        labels: ['Đã tiết kiệm', 'Còn lại'],
+                        datasets: [
+                            {
+                                data: [saving.currentAmount, saving.targetAmount - saving.currentAmount],
+                                backgroundColor: ['#4caf50', '#f44336'],
+                                borderWidth: 1,
+                            },
+                        ],
+                    };
+
+                    return (
+                        <div key={index} className="savings-chart">
+                            <h4>{saving.goal}</h4>
+                            <Pie data={data} />
+                        </div>
+                    );
+                })
+            ) : (
+                <p>Không có mục tiêu tiết kiệm nào.</p>
+            )}
         </div>
     );
 };

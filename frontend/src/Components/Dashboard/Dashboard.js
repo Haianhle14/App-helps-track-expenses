@@ -59,8 +59,12 @@ function Dashboard() {
                         
                     </div>
                     <div className="pie-chart-con">
-                        <PieChart totalLoaned={totalLoaned} totalBorrowed={totalBorrowed} />
-                        <SavingsPieChart totalCurrent={totalCurrent} totalTarget={totalTarget} />
+                        <div className="pie-chart-item">
+                            <PieChart totalLoaned={totalLoaned} totalBorrowed={totalBorrowed} />
+                        </div>
+                        <div className="savings-pie-chart-item">
+                            <SavingsPieChart totalCurrent={totalCurrent} totalTarget={totalTarget} />
+                        </div>
                     </div>
                 </div>
             </InnerLayout>
@@ -158,31 +162,37 @@ const DashboardStyled = styled.div`
         }
 
         .pie-chart-con {
-            grid-column: span 3;
+        grid-column: span 3;
+        display: flex;
+        flex-direction: row; /* Xếp ngang */
+        align-items: center;
+        justify-content: center; /* Căn giữa theo chiều ngang */
+        gap: 2rem;
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+
+        /* Phần thống kê vay/nợ (PieChart) */
+        .pie-chart-item {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            align-items: center;
-            text-align: center;
-            gap: 2rem;
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            width: 50%; /* Chiếm một nửa chiều rộng */
+        }
 
-            canvas {
-                max-width: 400px;
-                width: 40%;
-            }
+        /* Phần SavingsPieChart giữ nguyên */
+        .savings-pie-chart-item {
+            width: 34%; /* Chiếm một nửa chiều rộng */
+        }
 
-            .savings-chart {
-                background: #FCF6F9;
-                border: 2px solid #FFFFFF;
-                box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+        @media (max-width: 768px) {
+            flex-direction: column; /* Trên màn hình nhỏ, xếp dọc lại */
 
-                width: 40%;
-                max-width: 400px;
-                text-align: center;
-
-                h2 {
-                    color: var(--color-primary);
-                }
+            .pie-chart-item,
+            .savings-pie-chart-item {
+                width: 100%; /* Trên màn hình nhỏ, chiếm toàn bộ chiều rộng */
             }
         }
     }
