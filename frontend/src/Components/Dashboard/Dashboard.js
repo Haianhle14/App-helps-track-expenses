@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
 import History from '../../History/History';
@@ -12,6 +12,8 @@ function Dashboard() {
         totalExpenses, incomes, expenses, totalIncome, totalBalance, debts, getIncomes, getExpenses, getDebts, savingsProgress
     } = useGlobalContext();
 
+    const [showExpensesList, setShowExpensesList] = useState(false);
+
     useEffect(() => {
         getIncomes();
         getExpenses();
@@ -21,6 +23,13 @@ function Dashboard() {
     const totalLoaned = debts.filter(debt => debt.type === 'lend').reduce((acc, curr) => acc + curr.amount, 0);
     const totalBorrowed = debts.filter(debt => debt.type === 'borrow').reduce((acc, curr) => acc + curr.amount, 0);
     const { totalCurrent, totalTarget } = savingsProgress();
+
+    // Tính tổng tiền đã cập nhật vào các mục tiêu tiết kiệm
+    const totalSavingsProgress = totalCurrent;
+
+    const toggleExpensesList = () => {
+        setShowExpensesList(!showExpensesList);
+    };
 
     return (
         <DashboardStyled>
@@ -34,9 +43,26 @@ function Dashboard() {
                                 <h2>Tổng thu nhập</h2>
                                 <p>{totalIncome()}đ</p>
                             </div>
-                            <div className="expense">
+                            <div className="expense" onClick={toggleExpensesList}>
                                 <h2>Tổng chi tiêu</h2>
                                 <p>{totalExpenses()}đ</p>
+                                {showExpensesList && (
+                                    <div className="expenses-list">
+                                        <h3>Danh sách chi tiêu</h3>
+                                        <ul>
+                                            {/* Hiển thị các khoản chi tiêu */}
+                                            {expenses.map((expense, index) => (
+                                                <li key={index}>
+                                                    {expense.title}: {expense.amount}đ
+                                                </li>
+                                            ))}
+                                            {/* Hiển thị tổng tiền tiết kiệm đã cập nhật */}
+                                            <li>
+                                                <strong>Tiền tiết kiệm:</strong> {totalSavingsProgress}đ
+                                            </li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                             <div className="balance">
                                 <h2>Tổng số dư</h2>
@@ -56,7 +82,6 @@ function Dashboard() {
                             <p>{Math.min(...expenses.map(item => item.amount))}đ</p>
                             <p>{Math.max(...expenses.map(item => item.amount))}đ</p>
                         </div>
-                        
                     </div>
                     <div className="pie-chart-con">
                         <div className="pie-chart-item">
@@ -107,6 +132,7 @@ const DashboardStyled = styled.div`
                     border-radius: 20px;
                     padding: 1rem;
                     text-align: center;
+                    cursor: pointer; /* Thêm con trỏ khi hover */
 
                     h2 {
                         font-size: 1.5rem;
@@ -162,41 +188,67 @@ const DashboardStyled = styled.div`
         }
 
         .pie-chart-con {
-        grid-column: span 3;
-        display: flex;
-        flex-direction: row; /* Xếp ngang */
-        align-items: center;
-        justify-content: center; /* Căn giữa theo chiều ngang */
-        gap: 2rem;
-        background: #ffffff;
-        padding: 2rem;
-        border-radius: 20px;
-        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-        margin-top: 2rem;
-
-        /* Phần thống kê vay/nợ (PieChart) */
-        .pie-chart-item {
+            grid-column: span 3;
             display: flex;
-            justify-content: center; /* Căn giữa theo chiều ngang */
-            align-items: center; /* Căn giữa theo chiều dọc */
-            width: 50%; /* Chiếm một nửa chiều rộng */
-        }
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
 
-        /* Phần SavingsPieChart giữ nguyên */
-        .savings-pie-chart-item {
-            width: 34%; /* Chiếm một nửa chiều rộng */
-        }
+            .pie-chart-item {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 50%;
+            }
 
-        @media (max-width: 768px) {
-            flex-direction: column; /* Trên màn hình nhỏ, xếp dọc lại */
-
-            .pie-chart-item,
             .savings-pie-chart-item {
-                width: 100%; /* Trên màn hình nhỏ, chiếm toàn bộ chiều rộng */
+                width: 34%;
+            }
+
+            @media (max-width: 768px) {
+                flex-direction: column;
+
+                .pie-chart-item,
+                .savings-pie-chart-item {
+                    width: 100%;
+                }
             }
         }
     }
-`;
 
+    .expenses-list {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+    }
+
+    .expenses-list h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .expenses-list ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .expenses-list ul li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .expenses-list ul li:last-child {
+        border-bottom: none;
+    }
+`;
 
 export default Dashboard;
