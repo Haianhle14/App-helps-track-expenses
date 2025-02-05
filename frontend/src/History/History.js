@@ -9,12 +9,14 @@ function History() {
 
     return (
         <HistoryStyled>
-            <h2>Lịch sử gần đây</h2>
+            <div>
+                <h2>Lịch sử gần đây</h2>
+            </div>
             {history.map((item) => {
                 const { _id, title, amount, type } = item;
 
                 // Xác định màu sắc và dấu hiệu dựa trên loại giao dịch
-                const isExpense = type === 'Chi tiêu' || type === 'Vay, Nợ';
+                const isExpense = type === 'Chi tiêu';
                 const color = isExpense ? 'red' : 'var(--color-green)';
                 const sign = isExpense ? '-' : '+';
 

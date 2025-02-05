@@ -151,7 +151,14 @@ export const GlobalProvider = ({ children }) => {
     };
 
     const totalExpenses = () => {
-        return expenses.reduce((acc, expense) => acc + expense.amount, 0);
+        // Tính tổng chi tiêu từ danh sách expenses
+        const totalExpensesAmount = expenses.reduce((acc, expense) => acc + expense.amount, 0);
+    
+        // Tính tổng số tiền đã được cập nhật trong các mục tiêu tiết kiệm
+        const totalSavingsProgress = savings.reduce((acc, saving) => acc + saving.currentAmount, 0);
+    
+        // Tổng chi tiêu bao gồm cả tiền cập nhật tiến độ của mục tiêu tiết kiệm
+        return totalExpensesAmount + totalSavingsProgress;
     };
 
     // --- Tổng hợp ---
