@@ -35,60 +35,62 @@ function Dashboard() {
         <DashboardStyled>
             <InnerLayout>
                 <h1>Tất Cả Các Giao Dịch</h1>
-                <div className="stats-con">
-                    <div className="chart-con">
-                        <Chart />
-                        <div className="amount-con">
-                            <div className="income">
-                                <h2>Tổng thu nhập</h2>
-                                <p>{totalIncome()}đ</p>
-                            </div>
-                            <div className="expense" onClick={toggleExpensesList}>
-                                <h2>Tổng chi tiêu</h2>
-                                <p>{totalExpenses()}đ</p>
-                                {showExpensesList && (
-                                    <div className="expenses-list">
-                                        <h3>Danh sách chi tiêu</h3>
-                                        <ul>
-                                            {/* Hiển thị các khoản chi tiêu */}
-                                            {expenses.map((expense, index) => (
-                                                <li key={index}>
-                                                    {expense.title}: {expense.amount}đ
+                <div className="dashboard-content">
+                    <div className="stats-con">
+                        <div className="chart-con">
+                            <Chart />
+                            <div className="amount-con">
+                                <div className="income">
+                                    <h2>Tổng thu nhập</h2>
+                                    <p>{totalIncome()}đ</p>
+                                </div>
+                                <div className="expense" onClick={toggleExpensesList}>
+                                    <h2>Tổng chi tiêu</h2>
+                                    <p>{totalExpenses()}đ</p>
+                                    {showExpensesList && (
+                                        <div className="expenses-list">
+                                            <h3>Danh sách chi tiêu</h3>
+                                            <ul>
+                                                {/* Hiển thị các khoản chi tiêu */}
+                                                {expenses.map((expense, index) => (
+                                                    <li key={index}>
+                                                        {expense.title}: {expense.amount}đ
+                                                    </li>
+                                                ))}
+                                                {/* Hiển thị tổng tiền tiết kiệm đã cập nhật */}
+                                                <li>
+                                                    <strong>Tiền tiết kiệm:</strong> {totalSavingsProgress}đ
                                                 </li>
-                                            ))}
-                                            {/* Hiển thị tổng tiền tiết kiệm đã cập nhật */}
-                                            <li>
-                                                <strong>Tiền tiết kiệm:</strong> {totalSavingsProgress}đ
-                                            </li>
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="balance">
-                                <h2>Tổng số dư</h2>
-                                <p>{totalBalance()}đ</p>
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="balance">
+                                    <h2>Tổng số dư</h2>
+                                    <p>{totalBalance()}đ</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="history-con">
-                        <History />
-                        <h2 className="salary-title">Min <span>Thu nhập</span> Max</h2>
-                        <div className="salary-item">
-                            <p>{Math.min(...incomes.map(item => item.amount))}đ</p>
-                            <p>{Math.max(...incomes.map(item => item.amount))}đ</p>
+                        <div className="history-con">
+                            <History />
+                            <h2 className="salary-title">Min <span>Thu nhập</span> Max</h2>
+                            <div className="salary-item">
+                                <p>{Math.min(...incomes.map(item => item.amount))}đ</p>
+                                <p>{Math.max(...incomes.map(item => item.amount))}đ</p>
+                            </div>
+                            <h2 className="salary-title">Min <span>Chi tiêu</span> Max</h2>
+                            <div className="salary-item">
+                                <p>{Math.min(...expenses.map(item => item.amount))}đ</p>
+                                <p>{Math.max(...expenses.map(item => item.amount))}đ</p>
+                            </div>
                         </div>
-                        <h2 className="salary-title">Min <span>Chi tiêu</span> Max</h2>
-                        <div className="salary-item">
-                            <p>{Math.min(...expenses.map(item => item.amount))}đ</p>
-                            <p>{Math.max(...expenses.map(item => item.amount))}đ</p>
-                        </div>
-                    </div>
-                    <div className="pie-chart-con">
-                        <div className="pie-chart-item">
-                            <PieChart totalLoaned={totalLoaned} totalBorrowed={totalBorrowed} />
-                        </div>
-                        <div className="savings-pie-chart-item">
-                            <SavingsPieChart totalCurrent={totalCurrent} totalTarget={totalTarget} />
+                        <div className="pie-chart-con">
+                            <div className="pie-chart-item">
+                                <PieChart totalLoaned={totalLoaned} totalBorrowed={totalBorrowed} />
+                            </div>
+                            <div className="savings-pie-chart-item">
+                                <SavingsPieChart totalCurrent={totalCurrent} totalTarget={totalTarget} />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -98,10 +100,41 @@ function Dashboard() {
 }
 
 const DashboardStyled = styled.div`
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    .dashboard-content {
+        overflow-y: auto;
+        height: calc(100vh - 80px); // Trừ đi chiều cao của header nếu có
+        padding-right: 5px;
+
+        /* Custom scrollbar */
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    }
+
     .stats-con {
         display: grid;
         grid-template-columns: 1fr;
         gap: 2rem;
+        padding-bottom: 2rem;
 
         @media (min-width: 768px) {
             grid-template-columns: repeat(2, 1fr);
@@ -132,7 +165,7 @@ const DashboardStyled = styled.div`
                     border-radius: 20px;
                     padding: 1rem;
                     text-align: center;
-                    cursor: pointer; /* Thêm con trỏ khi hover */
+                    cursor: pointer;
 
                     h2 {
                         font-size: 1.5rem;
@@ -229,6 +262,8 @@ const DashboardStyled = styled.div`
         border: 1px solid #ddd;
         border-radius: 10px;
         box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+        max-height: 300px;
+        overflow-y: auto;
     }
 
     .expenses-list h3 {

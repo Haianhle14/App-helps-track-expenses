@@ -39,7 +39,7 @@ function Saving() {
 
     return (
         <SavingStyle>
-            <div class="">
+            <div className="">
                 <h2>Mục tiêu Tiết kiệm</h2>
 
                 {/* Form to Add New Saving Goal */}

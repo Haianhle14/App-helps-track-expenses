@@ -2,6 +2,7 @@ const { addExpense, getExpense, deleteExpense } = require('../controllers/expens
 const { addIncome, getIncomes, deleteIncome } = require('../controllers/income');
 const { addDebt, getDebts, deleteDebt } = require('../controllers/debt')
 const { addSaving, getSavings, updateSavingProgress, deleteSaving } = require('../controllers/savings')
+const { login, createNew, verifyAccount, getUserById } = require('../controllers/user')
 
 const router = require('express').Router();
 
@@ -15,9 +16,12 @@ router.post('/add-income', addIncome)
     .post('/add-debt', addDebt)
     .get('/get-debts', getDebts)
     .delete('/delete-debt/:id', deleteDebt)
-    .post('/savings', addSaving) // Thêm mục tiêu tiết kiệm
-    .get('/savings', getSavings) // Lấy danh sách mục tiêu
-    .put('/savings/:id', updateSavingProgress) // Cập nhật tiến độ tiết kiệm
-    .delete('/savings/:id', deleteSaving) // Xóa mục tiêu tiết kiệm
-
+    .post('/savings', addSaving) // Mục tiêu tiết kiệm
+    .get('/savings', getSavings) 
+    .put('/savings/:id', updateSavingProgress) 
+    .delete('/savings/:id', deleteSaving)
+    .post('/users/login', login) // Đăng nhập
+    .post('/users/register', createNew) // Đăng ký tài khoản
+    .put('/users/verify', verifyAccount) // Xác thực tài khoản 
+    .get('/users/:id', getUserById);
 module.exports = router

@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const SavingSchema = new mongoose.Schema(
     {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User', // Tham chiếu đến bảng User
+            required: true
+          },
         goal: {
             type: String,
             required: true,
