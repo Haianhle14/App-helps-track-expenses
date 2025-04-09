@@ -1,55 +1,69 @@
-const DebtSchema = require('../models/DebtModel');
+const DebtModel = require('../models/DebtModel')
 
 // Thêm nợ mới
 exports.addDebt = async (req, res) => {
-    const { type, amount, borrower, lender, description, dueDate } = req.body;
+  const { type, amount, borrower, lender, description, dueDate, userId } = req.body
 
-    const debt = new DebtSchema({
-        type,
-        amount,
-        borrower,
-        lender,
-        description,
-        dueDate,
-    });
-
-    try {
-        // Kiểm tra dữ liệu
-        if (!type || !amount || !dueDate) {
-            return res.status(400).json({ message: 'All fields are required!' });
-        }
-        if (amount <= 0) {
-            return res.status(400).json({ message: 'Amount must be a positive number!' });
-        }
-
-        await debt.save();
-        res.status(200).json({ message: 'Debt Added' });
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error' });
+  try {
+    // Kiểm tra dữ liệu
+    if (!type || !amount || !dueDate || !userId) {
+      return res.status(400).json({ message: 'Vui lòng nhập đầy đủ các trường bắt buộc!' })
     }
 
-    console.log(debt);
-};
+    if (typeof amount !== 'number' || amount <= 0) {
+      return res.status(400).json({ message: 'Số tiền phải là một số dương!' })
+    }
 
-// Lấy danh sách nợ
+    const debt = new DebtModel({
+      type,
+      amount,
+      borrower,
+      lender,
+      description,
+      dueDate,
+      userId // 👈 Liên kết nợ với người dùng
+    })
+
+    await debt.save()
+    res.status(200).json({ message: 'Khoản nợ đã được thêm thành công!' })
+  } catch (error) {
+    console.error('❌ addDebt error:', error)
+    res.status(500).json({ message: 'Lỗi máy chủ!' })
+  }
+}
+
+// Lấy danh sách nợ của người dùng
 exports.getDebts = async (req, res) => {
-    try {
-        const debts = await DebtSchema.find().sort({ createdAt: -1 });
-        res.status(200).json(debts);
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error' });
-    }
-};
+  const { userId } = req.query
 
-// Xóa nợ
+  try {
+    if (!userId) return res.status(400).json({ message: 'Thiếu userId trong query!' })
+
+    const debts = await DebtModel.find({ userId }).sort({ createdAt: -1 })
+    res.status(200).json(debts)
+  } catch (error) {
+    console.error('❌ getDebts error:', error)
+    res.status(500).json({ message: 'Lỗi máy chủ!' })
+  }
+}
+
+// Xóa khoản nợ
 exports.deleteDebt = async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params
+  const { userId } = req.query
 
-    DebtSchema.findByIdAndDelete(id)
-        .then(() => {
-            res.status(200).json({ message: 'Debt Deleted' });
-        })
-        .catch((error) => {
-            res.status(500).json({ message: 'Server Error' });
-        });
-};
+  try {
+    if (!userId) return res.status(400).json({ message: 'Thiếu userId trong query!' })
+
+    const deleted = await DebtModel.findOneAndDelete({ _id: id, userId })
+
+    if (!deleted) {
+      return res.status(404).json({ message: 'Không tìm thấy khoản nợ!' })
+    }
+
+    res.status(200).json({ message: 'Khoản nợ đã được xoá!' })
+  } catch (error) {
+    console.error('❌ deleteDebt error:', error)
+    res.status(500).json({ message: 'Lỗi máy chủ!' })
+  }
+}

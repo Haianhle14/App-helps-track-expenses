@@ -1,85 +1,99 @@
-const SavingSchema = require('../models/SavingModel');
+const SavingModel = require('../models/SavingModel');
 
 // Thêm mục tiêu tiết kiệm
 exports.addSaving = async (req, res) => {
-    const { goal, targetAmount, currentAmount } = req.body;
-
-    const saving = new SavingSchema({
-        goal,
-        targetAmount,
-        currentAmount: currentAmount || 0,
-    });
+  const { goal, targetAmount, currentAmount = 0, userId } = req.body;
 
     try {
-        // Kiểm tra dữ liệu
-        if (!goal || !targetAmount) {
-            return res.status(400).json({ message: 'Tên mục tiêu và số tiền mục tiêu là bắt buộc!' });
+    // Kiểm tra đầu vào
+    if (!goal || !targetAmount || !userId) {
+      return res.status(400).json({ message: 'Thiếu thông tin mục tiêu hoặc userId!' });
         }
-        if (targetAmount <= 0) {
+
+    if (typeof targetAmount !== 'number' || targetAmount <= 0) {
             return res.status(400).json({ message: 'Số tiền mục tiêu phải là số dương!' });
         }
 
-        // Lưu vào cơ sở dữ liệu và trả về toàn bộ đối tượng, bao gồm cả _id
+    const saving = new SavingModel({
+      goal,
+      targetAmount,
+      currentAmount,
+      userId,
+    });
+
         const savedSaving = await saving.save();
-        res.status(200).json(savedSaving);  // Trả về toàn bộ đối tượng (bao gồm _id)
+    res.status(200).json(savedSaving); // Gửi lại toàn bộ object (bao gồm _id)
     } catch (error) {
+    console.error('❌ addSaving error:', error);
         res.status(500).json({ message: 'Lỗi máy chủ!' });
     }
-    console.log(saving);
 };
 
-// Lấy danh sách mục tiêu tiết kiệm
+// Lấy danh sách mục tiêu tiết kiệm theo user
 exports.getSavings = async (req, res) => {
-    try {
-        const savings = await SavingSchema.find().sort({ createdAt: -1 }).lean();
-        const mappedSavings = savings.map(saving => ({
-            id: saving._id.toString(), // Chuyển _id thành id
+  const { userId } = req.query;
+
+  try {
+    if (!userId) return res.status(400).json({ message: 'Thiếu userId trong query!' });
+
+    const savings = await SavingModel.find({ userId }).sort({ createdAt: -1 }).lean();
+
+    const mapped = savings.map(saving => ({
+      id: saving._id.toString(),
             goal: saving.goal,
             targetAmount: saving.targetAmount,
             currentAmount: saving.currentAmount,
         }));
-        res.status(200).json(mappedSavings);
+
+    res.status(200).json(mapped);
     } catch (error) {
+    console.error('❌ getSavings error:', error);
         res.status(500).json({ message: 'Lỗi máy chủ!' });
     }
 };
-
-
 
 // Cập nhật tiến độ tiết kiệm
 exports.updateSavingProgress = async (req, res) => {
     const { id } = req.params;
-    const { currentAmount } = req.body;
+  const { currentAmount, userId } = req.body;
 
     try {
-        const saving = await SavingSchema.findOne({ _id: id }).lean();
+    if (!userId) return res.status(400).json({ message: 'Thiếu userId!' });
+
+    const saving = await SavingModel.findOne({ _id: id, userId });
 
         if (!saving) {
-            return res.status(404).json({ message: 'Mục tiêu không tồn tại!' });
+      return res.status(404).json({ message: 'Không tìm thấy mục tiêu tiết kiệm!' });
         }
 
-        await SavingSchema.updateOne({ _id: id }, { $set: { currentAmount } });
+    await SavingModel.updateOne({ _id: id, userId }, { $set: { currentAmount } });
 
         res.status(200).json({ message: 'Cập nhật tiến độ thành công!' });
     } catch (error) {
+    console.error('❌ updateSavingProgress error:', error);
         res.status(500).json({ message: 'Lỗi máy chủ!' });
     }
 };
-
 
 // Xóa mục tiêu tiết kiệm
 exports.deleteSaving = async (req, res) => {
     const { id } = req.params;
+  const { userId } = req.query;
 
-    if (!id) {
-        return res.status(400).json({ message: 'ID không hợp lệ!' });
+  try {
+    if (!userId || !id) {
+      return res.status(400).json({ message: 'Thiếu userId hoặc id!' });
     }
 
-    try {
-        await SavingSchema.findByIdAndDelete(id);
-        res.status(200).json({ message: 'Mục tiêu tiết kiệm đã được xóa!' });
+    const deleted = await SavingModel.findOneAndDelete({ _id: id, userId });
+
+    if (!deleted) {
+      return res.status(404).json({ message: 'Không tìm thấy mục tiêu để xoá!' });
+    }
+
+    res.status(200).json({ message: 'Xoá mục tiêu tiết kiệm thành công!' });
     } catch (error) {
+    console.error('❌ deleteSaving error:', error);
         res.status(500).json({ message: 'Lỗi máy chủ!' });
     }
 };
-

@@ -24,7 +24,6 @@ function Expenses() {
                     <div className="incomes">
                         {expenses.map((income) => {
                             const {_id, title, amount, date, category, description, type} = income;
-                            console.log(income)
                             return <IncomeItem
                                 key={_id}
                                 id={_id} 
