@@ -1,74 +1,39 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import avatar from '../../img/avatar.jpg'
 import { signout } from '../../utils/Icons'
 import { menuItems } from '../../utils/menuItems'
-import { useNavigate } from 'react-router-dom'
-import { useGlobalContext } from '../../context/globalContext'
-import axios from 'axios'
 
-const BASE_URL = 'http://localhost:5000/api/v1/'
-
-function Navigation({ active, setActive, setIsAuthenticated  }) {
-    const navigate = useNavigate()
-    const { user, logout } = useGlobalContext()
-
-    const [localUser, setLocalUser] = useState(null)
-
-    useEffect(() => {
-        if (!user) {
-            const userId = localStorage.getItem('userId')
-            if (userId) {
-                axios.get(`${BASE_URL}users/${userId}`)
-                    .then(res => setLocalUser(res.data))
-                    .catch(err => console.error('Lỗi lấy user:', err))
-            }
-        } else {
-            setLocalUser(user)  // Nếu context có user thì dùng luôn
-        }
-    }, [user])
-
-    const handleMenuClick = (item) => {
-        setActive(item.id)
-        navigate(item.link)
-    }
-
-    const handleLogout = () => {
-        logout()
-        setIsAuthenticated(false)
-        navigate('/login')
-    }
+function Navigation({active, setActive}) {
     
-
     return (
         <NavStyled>
             <div className="user-con">
-                <img src={user?.avatar || avatar} alt="avatar" />
+                <img src={avatar} alt="" />
                 <div className="text">
-                    <h2>{user?.username || localUser?.username || 'Khách'}</h2>
+                    <h2>Lê Hải Anh</h2>
                 </div>
             </div>
             <ul className="menu-items">
-                {menuItems.map((item) => (
-                    <li
+                {menuItems.map((item) => {
+                    return <li
                         key={item.id}
-                        onClick={() => handleMenuClick(item)}
-                        className={active === item.id ? 'active' : ''}
+                        onClick={() => setActive(item.id)}
+                        className={active === item.id ? 'active': ''}
                     >
                         {item.icon}
                         <span>{item.title}</span>
                     </li>
-                ))}
+                })}
             </ul>
-            <ul className="bottom-nav">
-                <li onClick={handleLogout} style={{ cursor: 'pointer' }}>
+            <div className="bottom-nav">
+                <li>
                     {signout} Đăng Xuất
                 </li>
-            </ul>
+            </div>
         </NavStyled>
     )
 }
-
 
 const NavStyled = styled.nav`
     padding: 2rem 1.5rem;
@@ -82,62 +47,58 @@ const NavStyled = styled.nav`
     flex-direction: column;
     justify-content: space-between;
     gap: 2rem;
-
-    .user-con {
+    .user-con{
         height: 100px;
         display: flex;
         align-items: center;
         gap: 1rem;
-
-        img {
+        img{
             width: 80px;
             height: 80px;
             border-radius: 50%;
             object-fit: cover;
             background: #fcf6f9;
-            border: 2px solid #ffffff;
-            padding: 0.2rem;
+            border: 2px solid #FFFFFF;
+            padding: .2rem;
             box-shadow: 0px 1px 17px rgba(0, 0, 0, 0.06);
         }
-
-        h2 {
+        h2{
             color: rgba(34, 34, 96, 1);
+        }
+        p{
+            color: rgba(34, 34, 96, .6);
         }
     }
 
-    .menu-items {
+    .menu-items{
         flex: 1;
         display: flex;
         flex-direction: column;
-
-        li {
+        li{
             display: grid;
             grid-template-columns: 40px auto;
             align-items: center;
-            margin: 0.6rem 0;
+            margin: .6rem 0;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.4s ease-in-out;
-            color: rgba(34, 34, 96, 0.6);
+            transition: all .4s ease-in-out;
+            color: rgba(34, 34, 96, .6);
             padding-left: 1rem;
             position: relative;
-
-            i {
+            i{
                 color: rgba(34, 34, 96, 0.6);
                 font-size: 1.4rem;
-                transition: all 0.4s ease-in-out;
+                transition: all .4s ease-in-out;
             }
         }
     }
 
-    .active {
+    .active{
         color: rgba(34, 34, 96, 1) !important;
-
-        i {
+        i{
             color: rgba(34, 34, 96, 1) !important;
         }
-
-        &::before {
+        &::before{
             content: "";
             position: absolute;
             left: 0;
@@ -148,14 +109,6 @@ const NavStyled = styled.nav`
             border-radius: 0 10px 10px 0;
         }
     }
-
-    .bottom-nav li {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: #c0392b;
-        font-weight: 500;
-    }
-`
+`;
 
 export default Navigation

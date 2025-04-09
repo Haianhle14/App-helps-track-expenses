@@ -160,6 +160,11 @@ const IncomeItemStyled = styled.div`
                     opacity: 0.8;
                 }
             }
+            .btn-con {
+                    display: flex;
+                    gap: 1rem;
+                    padding: 0 0 0 1rem;
+                }
         }
     }
 `;

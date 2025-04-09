@@ -116,7 +116,8 @@ const SavingItemStyled = styled.div`
 
             .btn-con {
                 display: flex;
-                gap: 0.5rem;
+                gap: 1rem;
+                padding: 0 0 0 1rem;
             }
         }
     }
