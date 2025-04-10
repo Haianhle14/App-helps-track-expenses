@@ -18,7 +18,9 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [active, setActive] = useState(1)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem("isAuthenticated") === "true"
+  );
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -26,15 +28,16 @@ function App() {
   const orbMemo = useMemo(() => <Orb />, [])
 
   const handleLoginSuccess = () => {
-    setIsAuthenticated(true)
-    navigate('/dashboard')
-  }
-
+    setIsAuthenticated(true);
+    localStorage.setItem("isAuthenticated", "true");
+    navigate('/dashboard');
+  };
+  
   const handleRegisterSuccess = () => {
-    setIsAuthenticated(true)
-    navigate('/dashboard')
-  }
-
+    setIsAuthenticated(true);
+    localStorage.setItem("isAuthenticated", "true");
+    navigate('/dashboard');
+  };
 
 const displayData = () => {
   switch (active) {

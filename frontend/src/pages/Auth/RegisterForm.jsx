@@ -1,11 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Avatar from '@mui/material/Avatar'
-import LockIcon from '@mui/icons-material/Lock'
 import Typography from '@mui/material/Typography'
 import { Card as MuiCard } from '@mui/material'
-import TrelloIcon from '../../assets/trello.svg'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
@@ -19,18 +16,25 @@ import {
 } from '../../utils/validators'
 import { registerUserAPI } from '../../apis'
 import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function RegisterForm() {
   const { register, handleSubmit, formState: { errors }, watch } = useForm()
   const navigate = useNavigate()
 
-  const submitRegister = (data) => {
+  const submitRegister = async (data) => {
     const { email, password } = data
     toast.promise(
       registerUserAPI({ email, password }),
-      { pending: 'Registration is in progress...' }
+      {
+        pending: 'Đang xử lý đăng ký...',
+        success: 'Đăng ký thành công! Vui lòng kiểm tra email để xác minh.',
+        error: 'Đăng ký thất bại. Vui lòng thử lại!'
+      }
     ).then(user => {
       navigate(`/login?registeredEmail=${user.email}`)
+    }).catch(error => {
+      console.error(error)
     })
   }
 
@@ -44,18 +48,11 @@ function RegisterForm() {
             justifyContent: 'center',
             gap: 1
           }}>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><LockIcon /></Avatar>
-            <Avatar sx={{ bgcolor: 'primary.main' }}>
-              <img src={TrelloIcon} alt="Trello Icon" />
-            </Avatar>
-          </Box>
-          <Box sx={{ marginTop: '1em', display: 'flex', justifyContent: 'center', color: theme => theme.palette.grey[500] }}>
-            Author: TrungQuanDev
+            <div>Đăng Ký</div>
           </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
             <Box sx={{ marginTop: '1em' }}>
               <TextField
-                // autoComplete="nope"
                 autoFocus
                 fullWidth
                 label="Enter Email..."
@@ -99,7 +96,7 @@ function RegisterForm() {
                 {...register('password_confirmation', {
                   validate: (value) => {
                     if (value === watch('password')) return true
-                    return 'Password Confirmation does not match!'
+                    return 'Xác nhận mật khẩu không khớp!!'
                   }
                 })}
               />
@@ -114,13 +111,13 @@ function RegisterForm() {
               size="large"
               fullWidth
             >
-              Register
+              Đăng Ký
             </Button>
           </CardActions>
           <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Typography>Already have an account?</Typography>
+            <Typography>Bạn đã có tài khoản?</Typography>
             <Link to="/login" style={{ textDecoration: 'none' }}>
-              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Log in!</Typography>
+              <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Đăng nhập</Typography>
             </Link>
           </Box>
         </MuiCard>

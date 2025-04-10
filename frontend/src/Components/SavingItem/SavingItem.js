@@ -8,6 +8,7 @@ function SavingItem({ _id, goal, targetAmount, currentAmount, updateProgress, de
     const [showConfirm, setShowConfirm] = useState(false)
     const [current, setCurrent] = useState(currentAmount)
     
+    
     useEffect(() => {
         setCurrent(currentAmount)
     }, [currentAmount])

@@ -16,15 +16,16 @@ function Navigation({ active, setActive, setIsAuthenticated, openProfilePanel  }
     const [showDropdown, setShowDropdown] = useState(false)
 
     useEffect(() => {
-        if (!user) {
-            const userId = localStorage.getItem('userId')
-            if (userId) {
-                axios.get(`${BASE_URL}users/${userId}`)
-                    .then(res => setLocalUser(res.data))
-                    .catch(err => console.error('Lỗi lấy user:', err))
-            }
+        const storedUserId = localStorage.getItem("userId");
+    
+        if (!user && storedUserId) {
+            axios.get(`${BASE_URL}users/${storedUserId}`)
+                .then(res => {
+                    setLocalUser(res.data);
+                })
+                .catch(err => console.error('Lỗi lấy user:', err));
         } else {
-            setLocalUser(user)
+            setLocalUser(user);
         }
     }, [user])
 
@@ -34,12 +35,14 @@ function Navigation({ active, setActive, setIsAuthenticated, openProfilePanel  }
     }
 
     const handleLogout = () => {
-        logout()
-        setIsAuthenticated(false)
-        navigate('/login')
-    }
+        logout(); 
+        setIsAuthenticated(false);
+        localStorage.removeItem("isAuthenticated");
+        localStorage.removeItem("userId")
+        navigate('/login');
+    };
 
-    const displayUser = user || localUser
+    const displayUser = user || localUser || { username: "Khách", avatar };
     
     return (
         <NavStyled>
