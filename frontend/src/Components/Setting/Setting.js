@@ -1,38 +1,54 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import axios from 'axios'
 import EditUsernameModal from './EditUsernameModal'
 import EditBioModal from './EditBioModal'
+import ChangePasswordModal from './ChangePasswordModal'
 
 function Setting() {
     const [showEditModal, setShowEditModal] = useState(false)
-    const [username, setUsername] = useState('haianhle1')
-    const [bio, setBio] = useState('Chưa cập nhật')
     const [showEditBio, setShowEditBio] = useState(false)
+    const [showChangePassword, setShowChangePassword] = useState(false)
+    const [displayName, setdisplayName] = useState('')
+    const [bio, setBio] = useState('')
+
+    const userId = localStorage.getItem('userId')
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/api/v1/users/${userId}`)
+                const user = res.data
+                setdisplayName(user.displayName || '')
+                setBio(user.bio || '')
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin user:', error)
+            }
+        }
+
+        if (userId) {
+            fetchUser()
+        }
+    }, [userId])
 
     const handleSaveUsername = (newUsername) => {
-        setUsername(newUsername)
+        setdisplayName(newUsername)
         setShowEditModal(false)
-        
     }
 
     const handleSaveBio = (newBio) => {
         setBio(newBio)
         setShowEditBio(false)
-        
     }
 
     return (
         <SettingStyled>
+            {/* phần render giữ nguyên */}
             <div className="setting-container">
                 <div className="sidebar">
                     <h2>Cài đặt tài khoản</h2>
-                    <p>
-                        Quản lý cài đặt tài khoản của bạn như thông tin cá nhân,
-                        cài đặt bảo mật, quản lý thông báo, v.v.
-                    </p>
-                    <button className="active-btn">
-                        Thông tin cá nhân
-                    </button>
+                    <p>Quản lý cài đặt tài khoản của bạn như thông tin cá nhân, cài đặt bảo mật, quản lý thông báo, v.v.</p>
+                    <button className="active-btn">Thông tin cá nhân</button>
                 </div>
 
                 <div className="content">
@@ -44,19 +60,17 @@ function Setting() {
                         <p>Quản lý tên hiển thị, tên người dùng, bio và avatar của bạn.</p>
 
                         <div className="info-box">
-                            <div
-                                className="info-item clickable"
-                                onClick={() => setShowEditModal(true)}
-                            >
+                            <div className="info-item clickable" onClick={() => setShowEditModal(true)}>
                                 <span className="label">Tên người dùng</span>
-                                <span className="value">{username}</span>
+                                <span className="value">{displayName || 'Chưa có tên'}</span>
                             </div>
-                            <div
-                                className="info-item clickable"
-                                onClick={() => setShowEditBio(true)}
-                            >
+                            <div className="info-item clickable" onClick={() => setShowEditBio(true)}>
                                 <span className="label">Giới thiệu</span>
                                 <span className="value">{bio || 'Chưa cập nhật'}</span>
+                            </div>
+                            <div className="info-item clickable" onClick={() => setShowChangePassword(true)}>
+                                <span className="label">Đổi mật khẩu</span>
+                                <span className="value">********</span>
                             </div>
                         </div>
                     </div>
@@ -65,7 +79,7 @@ function Setting() {
 
             {showEditModal && (
                 <EditUsernameModal
-                    currentUsername={username}
+                    currentUsername={displayName}
                     onClose={() => setShowEditModal(false)}
                     onSave={handleSaveUsername}
                 />
@@ -76,6 +90,12 @@ function Setting() {
                     currentBio={bio}
                     onClose={() => setShowEditBio(false)}
                     onSave={handleSaveBio}
+                />
+            )}
+
+            {showChangePassword && (
+                <ChangePasswordModal
+                    onClose={() => setShowChangePassword(false)}
                 />
             )}
         </SettingStyled>

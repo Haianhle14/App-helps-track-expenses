@@ -3,16 +3,17 @@ import styled from 'styled-components'
 import { useGlobalContext } from '../context/globalContext';
 
 function History() {
-    const { transactionHistory } = useGlobalContext()
+    const { transactionHistory } = useGlobalContext();
 
-    const history = transactionHistory()
+    // Kiểm tra nếu transactionHistory là một hàm, thì gọi nó, nếu không, dùng trực tiếp
+    const history = typeof transactionHistory === 'function' ? transactionHistory() : transactionHistory;
 
     return (
         <HistoryStyled>
             <div>
                 <h2>Lịch sử gần đây</h2>
             </div>
-            {history.map((item) => {
+            {history.map((item, index) => {
                 const { _id, title, amount, type } = item;
 
                 // Xác định màu sắc và dấu hiệu dựa trên loại giao dịch
@@ -21,7 +22,7 @@ function History() {
                 const sign = isExpense ? '-' : '+';
 
                 return (
-                    <div key={_id} className="history-item">
+                    <div key={_id || index} className="history-item">
                         <p style={{ color }}>
                             {`${title} (${type})`}
                         </p>
@@ -30,10 +31,10 @@ function History() {
                             {`${sign}${amount <= 0 ? 0 : amount}`}
                         </p>
                     </div>
-                )
+                );
             })}
         </HistoryStyled>
-    )
+    );
 }
 
 const HistoryStyled = styled.div`

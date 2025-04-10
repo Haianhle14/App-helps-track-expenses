@@ -2,7 +2,7 @@ const { addExpense, getExpense, deleteExpense } = require('../controllers/expens
 const { addIncome, getIncomes, deleteIncome } = require('../controllers/income');
 const { addDebt, getDebts, deleteDebt } = require('../controllers/debt')
 const { addSaving, getSavings, updateSavingProgress, deleteSaving } = require('../controllers/savings')
-const { login, createNew, verifyAccount, getUserById, updateUser} = require('../controllers/user')
+const { login, createNew, verifyAccount, getUserById, updateUser, changePassword} = require('../controllers/user')
 
 const router = require('express').Router();
 
@@ -32,6 +32,7 @@ router.post('/users/login', login)
 router.post('/users/register', createNew)
 router.put('/users/verify', verifyAccount)
 router.get('/users/:id', getUserById)
-router.patch('/users/:userId/update-profile', updateUser)
+router.put('/users/:userId/update-profile', updateUser)
+router.put('/users/:id/change-password', changePassword)
 
 module.exports = router

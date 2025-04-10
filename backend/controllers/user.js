@@ -1,7 +1,6 @@
 const { StatusCodes } = require('http-status-codes');
 const userServices = require('../service/userService')
 
-
 const createNew = async (req, res, next) => {
   try {
     const createUser = await userServices.createNew(req.body)
@@ -61,10 +60,26 @@ const updateUser = async (req, res) => {
   }
 }
 
+const bcrypt = require('bcryptjs')
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body
+    const userId = req.params.id // ✅ lấy từ URL
+
+    const result = await userServices.changePassword(userId, oldPassword, newPassword)
+    res.status(200).json(result)
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ message: error.message })
+  }
+}
+
+
+
 module.exports = {
   createNew,
   verifyAccount,
   login,
   getUserById,
-  updateUser
+  updateUser,
+  changePassword
 };

@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { useGlobalContext } from '../../context/globalContext';
-import SavingGoalForm from './SavingForm';
-import SavingItem from '../SavingItem/SavingItem';
+import { useGlobalContext } from '../../context/globalContext'
+import SavingGoalForm from './SavingForm'
+import SavingItem from '../SavingItem/SavingItem'
 
 function Saving() {
     const {
@@ -10,61 +10,52 @@ function Saving() {
         addSaving,
         deleteSaving,
         updateSavingProgress,
+        getSavings,
         error,
         setError,
-    } = useGlobalContext();
-
-    const handleAddSaving = (newSaving) => {
-        addSaving(newSaving);
-    };
-
-
-    const handleDeleteSaving = (id) => {
-        deleteSaving(id);
-    };
-
-    const handleUpdateProgress = (id, newAmount) => {
-        updateSavingProgress(id, newAmount);
-    };
+    } = useGlobalContext()
+    
+    useEffect(() => {
+        getSavings()
+    }, [getSavings])
 
     useEffect(() => {
         if (error) {
-            alert(error);
-            setError(null);
+            alert(error)
+            setError(null)
         }
-    }, [error, setError]);
+    }, [error, setError])
 
     return (
         <SavingStyle>
-            <div className="">
-                <h2>Mục tiêu Tiết kiệm</h2>
+            <h2>Mục tiêu Tiết kiệm</h2>
 
-                {/* Form to Add New Saving Goal */}
-                <SavingGoalForm onAdd={handleAddSaving} />
+            {/* Form thêm mục tiêu */}
+            <SavingGoalForm onAdd={addSaving} />
 
-                {/* Display Existing Saving Goals */}
-                <div>
-                    {savings.length === 0 ? (
-                        <p>Chưa có mục tiêu tiết kiệm nào.</p>
-                    ) : (
-                        savings.map((saving) => (
+            {/* Kiểm tra danh sách */}
+            <div>
+                {savings && savings.length > 0 ? (
+                    savings.map((saving, index) => {
+                        return (
                             <SavingItem
-                                key={saving.id}
-                                id={saving.id}
+                                key={saving._id || saving.id} 
+                                _id={saving._id || saving.id} 
                                 goal={saving.goal}
                                 targetAmount={saving.targetAmount}
                                 currentAmount={saving.currentAmount}
-                                updateProgress={handleUpdateProgress}
-                                deleteItem={handleDeleteSaving}
+                                updateProgress={updateSavingProgress}
+                                deleteItem={deleteSaving}
                             />
-                        ))
-                    )}
-                </div>
+                        )
+                    })
+                ) : (
+                    <p>Chưa có mục tiêu tiết kiệm nào.</p>
+                )}
             </div>
         </SavingStyle>
-    );
+    )
 }
-
 
 const SavingStyle = styled.div`
     margin: 1rem; 
@@ -73,5 +64,6 @@ const SavingStyle = styled.div`
         font-size: 2rem;
         padding-bottom: 1rem;
     }
-`
+`;
+
 export default Saving;

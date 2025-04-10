@@ -1,45 +1,46 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useGlobalContext } from '../../context/globalContext'
+import { toast } from 'react-toastify'
 
 const EditUsernameModal = ({ currentDisplayName, onClose, onSave }) => {
     const [newDisplayName, setNewDisplayName] = useState(currentDisplayName || '')
     const { user, updateUser } = useGlobalContext()
-  
+
     const handleSave = async () => {
-      try {
-        await updateUser({ userId: user?._id, displayName: newDisplayName })
-        onSave(newDisplayName)
-        onClose()
-      } catch (err) {
-        alert(err.message || 'Lỗi khi cập nhật tên hiển thị')
-      }
+        try {
+            await updateUser({ userId: user?._id, displayName: newDisplayName })
+            toast.success('Cập nhật tên hiển thị thành công!')
+            onSave(newDisplayName)
+            onClose()
+        } catch (err) {
+            toast.error(err.message || 'Lỗi khi cập nhật tên hiển thị')
+        }
     }
-  
+
     return (
-      <ModalOverlay>
-        <CloseButton onClick={onClose}>×</CloseButton>
-        <ModalContainer>
-          <h2>Chỉnh sửa tên hiển thị</h2>
-          <p>
-            URL trang cá nhân của bạn sẽ bị thay đổi, bạn cũng sẽ không sử dụng được tên cũ để đăng nhập vào hệ thống.
-          </p>
-          <label htmlFor="displayName">Tên hiển thị</label>
-          <input
-            id="displayName"
-            type="text"
-            value={newDisplayName}
-            onChange={(e) => setNewDisplayName(e.target.value)}
-          />
-          <div className="url-preview">
-            URL: https://example.com/{newDisplayName || 'ten-hien-thi'}
-          </div>
-          <button onClick={handleSave}>Lưu lại</button>
-        </ModalContainer>
-      </ModalOverlay>
+        <ModalOverlay>
+            <CloseButton onClick={onClose}>×</CloseButton>
+            <ModalContainer>
+                <h2>Chỉnh sửa tên hiển thị</h2>
+                <p>
+                    URL trang cá nhân của bạn sẽ bị thay đổi, bạn cũng sẽ không sử dụng được tên cũ để đăng nhập vào hệ thống.
+                </p>
+                <label htmlFor="displayName">Tên hiển thị</label>
+                <input
+                    id="displayName"
+                    type="text"
+                    value={newDisplayName}
+                    onChange={(e) => setNewDisplayName(e.target.value)}
+                />
+                <div className="url-preview">
+                    URL: https://example.com/{newDisplayName || 'ten-hien-thi'}
+                </div>
+                <button onClick={handleSave}>Lưu lại</button>
+            </ModalContainer>
+        </ModalOverlay>
     )
-  }
-  
+}
 
 
 const ModalOverlay = styled.div`

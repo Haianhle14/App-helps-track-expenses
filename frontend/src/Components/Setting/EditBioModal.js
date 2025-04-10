@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useGlobalContext } from '../../context/globalContext'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const EditBioModal = ({ currentBio, onClose, onSave }) => {
   const [bio, setBio] = useState(currentBio || '')
@@ -10,9 +12,10 @@ const EditBioModal = ({ currentBio, onClose, onSave }) => {
     try {
       await updateUser({ userId: user?._id, bio })
       onSave(bio)
+      toast.success('Cập nhật giới thiệu thành công!')
       onClose()
     } catch (err) {
-      alert(err.message || 'Lỗi khi cập nhật giới thiệu')
+      toast.error(err.message || 'Lỗi khi cập nhật giới thiệu')
     }
   }
 
@@ -71,7 +74,6 @@ const ModalBox = styled.div`
       font-size: 1.4rem;
       margin: 0;
     }
-
   }
 
   .description {
@@ -118,6 +120,7 @@ const ModalBox = styled.div`
     transition: 0.3s ease;
   }
 `
+
 const CloseButton = styled.button`
     position: fixed;
     top: 20px;
@@ -134,4 +137,3 @@ const CloseButton = styled.button`
     box-shadow: 0 0 5px rgba(0,0,0,0.1);
     z-index: 1000;
 `
-

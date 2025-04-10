@@ -21,6 +21,7 @@ const pickUser = (user) => {
     'username',
     'displayName',
     'avatar',
+    'bio',
     'role',
     'isActive',
     'createdAt',

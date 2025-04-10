@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import DatePicker from 'react-datepicker'
-import "react-datepicker/dist/react-datepicker.css";
-import { useGlobalContext } from '../../context/globalContext';
-import Button from '../Button/Button';
-import { plus } from '../../utils/Icons';
-
+import "react-datepicker/dist/react-datepicker.css"
+import { useGlobalContext } from '../../context/globalContext'
+import Button from '../Button/Button'
+import { plus } from '../../utils/Icons'
+import { toast } from 'react-toastify'
 
 function Form() {
-    const {addIncome, error, setError} = useGlobalContext()
+    const { addIncome, error, setError } = useGlobalContext()
     const [inputState, setInputState] = useState({
         title: '',
         amount: '',
@@ -17,23 +17,28 @@ function Form() {
         description: '',
     })
 
-    const { title, amount, date, category,description } = inputState;
+    const { title, amount, date, category, description } = inputState
 
     const handleInput = name => e => {
-        setInputState({...inputState, [name]: e.target.value})
+        setInputState({ ...inputState, [name]: e.target.value })
         setError('')
     }
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault()
-        addIncome(inputState)
-        setInputState({
-            title: '',
-            amount: '',
-            date: '',
-            category: '',
-            description: '',
-        })
+        try {
+            await addIncome(inputState)
+            toast.success('Thêm thu nhập thành công!')
+            setInputState({
+                title: '',
+                amount: '',
+                date: '',
+                category: '',
+                description: '',
+            })
+        } catch (err) {
+            toast.error('Lỗi khi thêm thu nhập')
+        }
     }
 
     return (
@@ -49,7 +54,8 @@ function Form() {
                 />
             </div>
             <div className="input-control">
-                <input value={amount}  
+                <input 
+                    value={amount}  
                     type="text" 
                     name={'amount'} 
                     placeholder={'Mức lương'}
@@ -63,13 +69,13 @@ function Form() {
                     selected={date}
                     dateFormat="dd/MM/yyyy"
                     onChange={(date) => {
-                        setInputState({...inputState, date: date})
+                        setInputState({ ...inputState, date: date })
                     }}
                 />
             </div>
             <div className="selects input-control">
                 <select required value={category} name="category" id="category" onChange={handleInput('category')}>
-                    <option value=""  disabled >Chọn tùy chọn</option>
+                    <option value="" disabled>Chọn tùy chọn</option>
                     <option value="salary">Lương</option>
                     <option value="freelancing">Freelancing</option>
                     <option value="investments">Đầu tư</option>
@@ -81,7 +87,15 @@ function Form() {
                 </select>
             </div>
             <div className="input-control">
-                <textarea name="description" value={description} placeholder='Thêm mô tả' id="description" cols="30" rows="4" onChange={handleInput('description')}></textarea>
+                <textarea 
+                    name="description" 
+                    value={description} 
+                    placeholder='Thêm mô tả' 
+                    id="description" 
+                    cols="30" 
+                    rows="4" 
+                    onChange={handleInput('description')}
+                />
             </div>
             <div className="submit-btn">
                 <Button 
@@ -96,7 +110,6 @@ function Form() {
         </FormStyled>
     )
 }
-
 
 const FormStyled = styled.form`
     display: flex;
@@ -139,9 +152,10 @@ const FormStyled = styled.form`
         button{
             box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
             &:hover{
-                background: var(--color-green) !important;
+                background: linear-gradient(to right, #6dd5ed, #2193b0) !important;
             }
         }
     }
 `;
+
 export default Form

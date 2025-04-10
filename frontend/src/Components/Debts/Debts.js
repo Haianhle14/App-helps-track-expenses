@@ -16,9 +16,9 @@ function Debts() {
     return (
         <DebtStyled>
             <InnerLayout>
-                <h1>Quản lý nợ</h1>
+                <h1>Quản Lý Vay Và Cho Vay</h1>
                 <h2 className="total-debt">
-                    Tổng số tiền nợ: <span>{totalDebts()}đ</span>
+                    Tổng số tiền liên quan: <span>{totalDebts()}đ</span>
                 </h2>
                 <div className="debt-content">
                     <div className="form-container">
@@ -49,8 +49,26 @@ function Debts() {
 }
 
 const DebtStyled = styled.div`
-    display: flex;
-    overflow: auto;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: scroll;
+    
+    /* Dành cho trình duyệt WebKit (Chrome, Safari):
+       - width: 0px sẽ ẩn thanh cuộn theo chiều dọc (vì nó sử dụng chiều rộng của scrollbar)
+       - height: 12px (hoặc giá trị bạn mong muốn) sẽ giữ lại thanh cuộn ngang */
+    &::-webkit-scrollbar {
+        width: 0px;    /* Ẩn scrollbar dọc */
+        height: 12px;  /* Hiển thị scrollbar ngang với chiều cao 12px */
+    }
+
+    /* Trên Firefox, bạn không thể tách riêng từng chiều dễ dàng.
+       Nếu cần thiết, bạn có thể sử dụng các thư viện CSS hoặc custom scrollbar plugin để tùy biến riêng.
+       Hoặc sử dụng:
+       scrollbar-width: thin;  (thanh cuộn sẽ hiển thị ở dạng mỏng)
+       */
+    scrollbar-width: thin;
+    -ms-overflow-style: auto; /* IE 10+ */
+
     .total-debt {
         display: flex;
         justify-content: center;
@@ -63,19 +81,25 @@ const DebtStyled = styled.div`
         margin: 1rem 0;
         font-size: 2rem;
         gap: 0.5rem;
-        span{
+
+        span {
             font-size: 2.5rem;
             font-weight: 800;
             color: var(--color-green);
         }
     }
+
     .debt-content {
         display: flex;
         gap: 2rem;
+
         .debts {
             flex: 1;
         }
     }
-`;
+`
+
+
+
 
 export default Debts;

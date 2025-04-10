@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import DatePicker from 'react-datepicker'
-import "react-datepicker/dist/react-datepicker.css";
-import { useGlobalContext } from '../../context/globalContext';
-import Button from '../Button/Button';
-import { plus } from '../../utils/Icons';
-
+import "react-datepicker/dist/react-datepicker.css"
+import { useGlobalContext } from '../../context/globalContext'
+import Button from '../Button/Button'
+import { plus } from '../../utils/Icons'
+import { toast } from 'react-toastify'
 
 function ExpenseForm() {
-    const {addExpense, error, setError} = useGlobalContext()
+    const { addExpense, error, setError } = useGlobalContext()
     const [inputState, setInputState] = useState({
         title: '',
         amount: '',
@@ -17,23 +17,28 @@ function ExpenseForm() {
         description: '',
     })
 
-    const { title, amount, date, category,description } = inputState;
+    const { title, amount, date, category, description } = inputState
 
     const handleInput = name => e => {
-        setInputState({...inputState, [name]: e.target.value})
+        setInputState({ ...inputState, [name]: e.target.value })
         setError('')
     }
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault()
-        addExpense(inputState)
-        setInputState({
-            title: '',
-            amount: '',
-            date: '',
-            category: '',
-            description: '',
-        })
+        try {
+            await addExpense(inputState)
+            toast.success('Thêm chi tiêu thành công!')
+            setInputState({
+                title: '',
+                amount: '',
+                date: '',
+                category: '',
+                description: '',
+            })
+        } catch (err) {
+            toast.error('Thêm chi tiêu thất bại')
+        }
     }
 
     return (
@@ -49,7 +54,8 @@ function ExpenseForm() {
                 />
             </div>
             <div className="input-control">
-                <input value={amount}  
+                <input 
+                    value={amount}  
                     type="text" 
                     name={'amount'} 
                     placeholder={'Số tiền chi tiêu'}
@@ -63,13 +69,13 @@ function ExpenseForm() {
                     selected={date}
                     dateFormat="dd/MM/yyyy"
                     onChange={(date) => {
-                        setInputState({...inputState, date: date})
+                        setInputState({ ...inputState, date: date })
                     }}
                 />
             </div>
             <div className="selects input-control">
                 <select required value={category} name="category" id="category" onChange={handleInput('category')}>
-                    <option value="" disabled >Chọn tùy chọn</option>
+                    <option value="" disabled>Chọn tùy chọn</option>
                     <option value="education">Giáo dục</option>
                     <option value="groceries">Cửa hàng tạp hóa</option>
                     <option value="health">Sức khỏe</option>
@@ -81,7 +87,15 @@ function ExpenseForm() {
                 </select>
             </div>
             <div className="input-control">
-                <textarea name="description" value={description} placeholder='Thêm mô tả' id="description" cols="30" rows="4" onChange={handleInput('description')}></textarea>
+                <textarea 
+                    name="description" 
+                    value={description} 
+                    placeholder='Thêm mô tả' 
+                    id="description" 
+                    cols="30" 
+                    rows="4" 
+                    onChange={handleInput('description')}
+                />
             </div>
             <div className="submit-btn">
                 <Button 
@@ -96,7 +110,6 @@ function ExpenseForm() {
         </ExpenseFormStyled>
     )
 }
-
 
 const ExpenseFormStyled = styled.form`
     display: flex;
@@ -144,4 +157,5 @@ const ExpenseFormStyled = styled.form`
         }
     }
 `;
+
 export default ExpenseForm

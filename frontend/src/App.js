@@ -13,6 +13,8 @@ import Save from './Components/Save/Savings'
 import Login from './pages/Auth/LoginForm'
 import Register from './pages/Auth/RegisterForm'
 import Setting from './Components/Setting/Setting'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [active, setActive] = useState(1)
@@ -65,6 +67,7 @@ const displayData = () => {
 
   return (
     <AppStyled bg={bg}>
+      <ToastContainer position="bottom-right" autoClose={3000} />
       {orbMemo}
       <MainLayout>
       <Navigation 

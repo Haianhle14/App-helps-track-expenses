@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { useGlobalContext } from '../../context/globalContext';
-import Button from '../Button/Button';
-import { plus } from '../../utils/Icons';
+import React, { useState } from 'react'
+import styled from 'styled-components'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { useGlobalContext } from '../../context/globalContext'
+import Button from '../Button/Button'
+import { plus } from '../../utils/Icons'
+import { toast } from 'react-toastify'
 
 function DebtForm() {
-    const { addDebt, error, setError } = useGlobalContext();
+    const { addDebt, error, setError } = useGlobalContext()
 
     const [inputState, setInputState] = useState({
         type: '',
@@ -16,18 +17,62 @@ function DebtForm() {
         lender: '',
         dueDate: '',
         description: '',
-    });
+    })
 
-    const { type, amount, borrower, lender, dueDate, description } = inputState;
+    const { type, amount, borrower, lender, dueDate, description } = inputState
 
     const handleInput = (name) => (e) => {
-        setInputState({ ...inputState, [name]: e.target.value });
-        setError('');
-    };
+        setInputState({ ...inputState, [name]: e.target.value })
+        setError('')
+    }
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-        addDebt(inputState);
+        e.preventDefault()
+
+        if (!type) {
+            toast.error('Vui lòng chọn loại giao dịch.')
+            return
+        }
+
+        const amountValue = parseFloat(amount)
+        if (!amount || isNaN(amountValue) || amountValue <= 0) {
+            toast.error('Số tiền phải là số lớn hơn 0.')
+            return
+        }
+
+        if (!dueDate) {
+            toast.error('Vui lòng chọn ngày đến hạn.')
+            return
+        }
+
+        // Với type "borrow" -> bạn vay tiền từ người khác nên cần nhập tên của người cho vay (lender)
+        if (type === 'borrow' && !lender) {
+            toast.error('Vui lòng nhập tên người cho vay.')
+            return
+        }
+
+        // Với type "lend" -> bạn cho người khác vay tiền nên cần nhập tên của người vay (borrower)
+        if (type === 'lend' && !borrower) {
+            toast.error('Vui lòng nhập tên người vay.')
+            return
+        }
+
+        const data = {
+            type,
+            amount: amountValue,
+            borrower,
+            lender,
+            dueDate,
+            description,
+        }
+
+        addDebt(data)
+        toast.success(
+            type === 'borrow'
+                ? 'Đã thêm khoản vay (bạn vay từ người khác).'
+                : 'Đã thêm khoản cho vay (bạn cho người khác vay).'
+        )
+
         setInputState({
             type: '',
             amount: '',
@@ -35,50 +80,54 @@ function DebtForm() {
             lender: '',
             dueDate: '',
             description: '',
-        });
-    };
+        })
+    }
 
     return (
         <FormStyled onSubmit={handleSubmit}>
             {error && <p className="error">{error}</p>}
+
             <div className="input-control">
-                <select
-                    required
-                    value={type}
-                    name="type"
-                    onChange={handleInput('type')}
-                >
-                    <option value="" disabled>
-                        Chọn tùy chọn
-                    </option>
-                    <option value="borrow">Cho Vay</option>
-                    <option value="lend">Vay</option>
+                <select required value={type} name="type" onChange={handleInput('type')}>
+                    <option value="" disabled>Chọn tùy chọn</option>
+                    <option value="borrow">Vay (bạn vay từ người khác)</option>
+                    <option value="lend">Cho vay (bạn cho người khác vay)</option>
                 </select>
             </div>
+
             <div className="input-control">
                 <input
-                    type="text"
+                    type="number"
                     value={amount}
                     name="amount"
                     placeholder="Số tiền"
                     onChange={handleInput('amount')}
                 />
             </div>
-            <div className="input-control">
-                <input
-                    type="text"
-                    value={type === 'borrow' ? lender : borrower}
-                    name={type === 'borrow' ? 'lender' : 'borrower'}
-                    placeholder={
-                        type === 'borrow'
-                            ? 'Người cho vay'
-                            : 'Người vay'
-                    }
-                    onChange={handleInput(
-                        type === 'borrow' ? 'lender' : 'borrower'
+
+            {type && (
+                <div className="input-control">
+                    {type === 'borrow' && (
+                        <input
+                            type="text"
+                            value={lender}
+                            name="lender"
+                            placeholder="Người cho vay"
+                            onChange={handleInput('lender')}
+                        />
                     )}
-                />
-            </div>
+                    {type === 'lend' && (
+                        <input
+                            type="text"
+                            value={borrower}
+                            name="borrower"
+                            placeholder="Người vay"
+                            onChange={handleInput('borrower')}
+                        />
+                    )}
+                </div>
+            )}
+
             <div className="input-control">
                 <DatePicker
                     id="dueDate"
@@ -90,6 +139,7 @@ function DebtForm() {
                     }}
                 />
             </div>
+
             <div className="input-control">
                 <textarea
                     name="description"
@@ -98,11 +148,12 @@ function DebtForm() {
                     cols="30"
                     rows="4"
                     onChange={handleInput('description')}
-                ></textarea>
+                />
             </div>
+
             <div className="submit-btn">
                 <Button
-                    name={'Thêm khoản nợ'}
+                    name={'Thêm khoản vay/ cho vay'}
                     icon={plus}
                     bPad={'.8rem 1.6rem'}
                     bRad={'30px'}
@@ -118,9 +169,8 @@ const FormStyled = styled.form`
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    input,
-    textarea,
-    select {
+
+    input, textarea, select {
         font-family: inherit;
         font-size: inherit;
         outline: none;
@@ -136,21 +186,10 @@ const FormStyled = styled.form`
             color: rgba(34, 34, 96, 0.4);
         }
     }
+
     .input-control {
         input {
             width: 100%;
-        }
-    }
-
-    .selects {
-        display: flex;
-        justify-content: flex-end;
-        select {
-            color: rgba(34, 34, 96, 0.4);
-            &:focus,
-            &:active {
-                color: rgba(34, 34, 96, 1);
-            }
         }
     }
 
@@ -158,10 +197,10 @@ const FormStyled = styled.form`
         button {
             box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
             &:hover {
-                background: var(--color-green) !important;
+                background: linear-gradient(to right, #6dd5ed, #2193b0)!important;
             }
         }
     }
-`;
+`
 
-export default DebtForm;
+export default DebtForm

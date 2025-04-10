@@ -1,8 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { dateFormat } from '../../utils/dateFormat';
-import { bitcoin, book, calender, card, circle, clothing, comment, food, freelance, medical, money, piggy, stocks, takeaway, trash, tv, users, yt } from '../../utils/Icons';
-import Button from '../Button/Button';
+import { dateFormat } from '../../utils/dateFormat'
+import {
+    bitcoin, book, calender, card, circle, clothing, comment,
+    food, freelance, medical, money, piggy, stocks, takeaway,
+    trash, tv, users, yt
+} from '../../utils/Icons'
+import Button from '../Button/Button'
+import ConfirmDeleteModal from '../../utils/ConfirmModal'
+import { toast } from 'react-toastify'
 
 function IncomeItem({
     id,
@@ -15,84 +21,80 @@ function IncomeItem({
     indicatorColor,
     type
 }) {
+    const [showModal, setShowModal] = useState(false)
 
-    const categoryIcon = () =>{
-        switch(category) {
-            case 'salary':
-                return money;
-            case 'freelancing':
-                return freelance
-            case 'investments':
-                return stocks;
-            case 'stocks':
-                return users;
-            case 'bitcoin':
-                return bitcoin;
-            case 'bank':
-                return card;
-            case 'youtube':
-                return yt;
-            case 'other':
-                return piggy;
-            default:
-                return ''
+    const categoryIcon = () => {
+        switch (category) {
+            case 'salary': return money
+            case 'freelancing': return freelance
+            case 'investments': return stocks
+            case 'stocks': return users
+            case 'bitcoin': return bitcoin
+            case 'bank': return card
+            case 'youtube': return yt
+            case 'other': return piggy
+            default: return ''
         }
     }
 
     const expenseCatIcon = () => {
         switch (category) {
-            case 'education':
-                return book;
-            case 'groceries':
-                return food;
-            case 'health':
-                return medical;
-            case 'subscriptions':
-                return tv;
-            case 'takeaways':
-                return takeaway;
-            case 'clothing':
-                return clothing;
-            case 'travelling':
-                return freelance;
-            case 'other':
-                return circle;
-            default:
-                return ''
+            case 'education': return book
+            case 'groceries': return food
+            case 'health': return medical
+            case 'subscriptions': return tv
+            case 'takeaways': return takeaway
+            case 'clothing': return clothing
+            case 'travelling': return freelance
+            case 'other': return circle
+            default: return ''
         }
     }
 
+    const handleDelete = () => {
+        deleteItem(id)
+        toast.success('Xóa thành công!')
+        setShowModal(false)
+    }
+
     return (
-        <IncomeItemStyled indicator={indicatorColor}>
-            <div className="icon">
-                {type === 'expense' ? expenseCatIcon() : categoryIcon()}
-            </div>
-            <div className="content">
-                <h5>{title}</h5>
-                <div className="inner-content">
-                    <div className="text">
-                        <p>{money}{amount}đ</p>
-                        <p>{calender} {dateFormat(date)}</p>
-                        <p>
-                            {comment}
-                            {description}
-                        </p>
-                    </div>
-                    <div className="btn-con">
-                        <Button 
-                            icon={trash}
-                            bPad={'1rem'}
-                            bRad={'50%'}
-                            bg={'var(--primary-color'}
-                            color={'#fff'}
-                            iColor={'#fff'}
-                            hColor={'var(--color-green)'}
-                            onClick={() => deleteItem(id)}
-                        />
+        <>
+            <IncomeItemStyled indicator={indicatorColor}>
+                <div className="icon">
+                    {type === 'expense' ? expenseCatIcon() : categoryIcon()}
+                </div>
+                <div className="content">
+                    <h5>{title}</h5>
+                    <div className="inner-content">
+                        <div className="text">
+                            <p>{money}{amount}đ</p>
+                            <p>{calender} {dateFormat(date)}</p>
+                            <p>{comment} {description}</p>
+                        </div>
+                        <div className="btn-con">
+                            <Button
+                                icon={trash}
+                                bPad={'1rem'}
+                                bRad={'50%'}
+                                bg={'var(--primary-color)'}
+                                color={'#fff'}
+                                iColor={'#fff'}
+                                hColor={'var(--color-green)'}
+                                onClick={() => setShowModal(true)}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
-        </IncomeItemStyled>
+            </IncomeItemStyled>
+
+            {showModal && (
+                <ConfirmDeleteModal
+                    message="Bạn có chắc chắn muốn xóa khoản này không?"
+                    onConfirm={handleDelete}
+                    onCancel={() => setShowModal(false)}
+                />
+            )}
+        </>
     )
 }
 
@@ -108,7 +110,8 @@ const IncomeItemStyled = styled.div`
     gap: 1rem;
     width: 100%;
     color: #222260;
-    .icon{
+
+    .icon {
         width: 80px;
         height: 80px;
         border-radius: 20px;
@@ -117,21 +120,21 @@ const IncomeItemStyled = styled.div`
         align-items: center;
         justify-content: center;
         border: 2px solid #FFFFFF;
-        i{
+        i {
             font-size: 2.6rem;
         }
     }
 
-    .content{
+    .content {
         flex: 1;
         display: flex;
         flex-direction: column;
         gap: .2rem;
-        h5{
+        h5 {
             font-size: 1.3rem;
             padding-left: 2rem;
             position: relative;
-            &::before{
+            &::before {
                 content: '';
                 position: absolute;
                 left: 0;
@@ -144,15 +147,15 @@ const IncomeItemStyled = styled.div`
             }
         }
 
-        .inner-content{
+        .inner-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            .text{
+            .text {
                 display: flex;
                 align-items: center;
                 gap: 1.5rem;
-                p{
+                p {
                     display: flex;
                     align-items: center;
                     gap: 0.5rem;
@@ -160,13 +163,14 @@ const IncomeItemStyled = styled.div`
                     opacity: 0.8;
                 }
             }
+
             .btn-con {
-                    display: flex;
-                    gap: 1rem;
-                    padding: 0 0 0 1rem;
-                }
+                display: flex;
+                gap: 1rem;
+                padding: 0 0 0 1rem;
+            }
         }
     }
-`;
+`
 
 export default IncomeItem

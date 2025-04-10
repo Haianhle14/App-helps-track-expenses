@@ -1,20 +1,35 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react'
+import styled from 'styled-components'
+import { toast } from 'react-toastify'
 
 function SavingGoalForm({ onAdd }) {
-    const [savingGoal, setSavingGoal] = useState('');
-    const [amount, setAmount] = useState('');
+    const [savingGoal, setSavingGoal] = useState('')
+    const [amount, setAmount] = useState('')
 
-    const handleAddSaving = () => {
-        if (savingGoal && amount) {
-            onAdd({ goal: savingGoal, targetAmount: parseFloat(amount), currentAmount: 0 });
-            setSavingGoal('');
-            setAmount('');
+    const handleAddSaving = (e) => {
+        e.preventDefault()
+
+        if (!savingGoal.trim() || !amount.trim()) {
+            toast.error('Vui lòng nhập đầy đủ thông tin.')
+            return
         }
-    };
+
+        const amountValue = parseFloat(amount)
+
+        if (isNaN(amountValue) || amountValue <= 0) {
+            toast.error('Số tiền mục tiêu phải là một số lớn hơn 0.')
+            return
+        }
+
+        onAdd({ goal: savingGoal.trim(), targetAmount: amountValue, currentAmount: 0 })
+        toast.success('Đã thêm mục tiêu tiết kiệm!')
+
+        setSavingGoal('')
+        setAmount('')
+    }
 
     return (
-        <FormStyled>
+        <FormStyled onSubmit={handleAddSaving}>
             <input
                 type="text"
                 placeholder="Tên mục tiêu"
@@ -27,12 +42,12 @@ function SavingGoalForm({ onAdd }) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
             />
-            <button onClick={handleAddSaving}>Thêm mục tiêu</button>
+            <button type="submit">Thêm mục tiêu</button>
         </FormStyled>
-    );
+    )
 }
 
-const FormStyled = styled.div`
+const FormStyled = styled.form`
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -58,9 +73,9 @@ const FormStyled = styled.div`
         font-size: 1rem;
 
         &:hover {
-            background: var(--color-green);
+            background: linear-gradient(to right, #6dd5ed, #2193b0);
         }
     }
-`;
+`
 
-export default SavingGoalForm;
+export default SavingGoalForm

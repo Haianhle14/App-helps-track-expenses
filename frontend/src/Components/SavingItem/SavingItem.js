@@ -1,50 +1,76 @@
-import React from 'react';
-import styled from 'styled-components';
-import { money, trash } from '../../utils/Icons';
+import React, { useState, useEffect } from 'react'
+import styled from 'styled-components'
+import { money, trash } from '../../utils/Icons'
+import ConfirmModal from '../../utils/ConfirmModal'
+import { toast } from 'react-toastify'
 
-function SavingItem({ id, goal, targetAmount, currentAmount, updateProgress, deleteItem, indicatorColor }) {
-    if (!id) {
-        console.error('SavingItem received undefined id!', { id, goal, targetAmount, currentAmount });
+function SavingItem({ _id, goal, targetAmount, currentAmount, updateProgress, deleteItem, indicatorColor = "#6dd5ed" }) {
+    const [showConfirm, setShowConfirm] = useState(false)
+    const [current, setCurrent] = useState(currentAmount)
+    
+    useEffect(() => {
+        setCurrent(currentAmount)
+    }, [currentAmount])
+
+    const progressPercentage = ((current / targetAmount) * 100).toFixed(2)
+
+    const handleDelete = () => setShowConfirm(true)
+
+    const confirmDelete = () => {
+        deleteItem(_id)
+        toast.success('Đã xóa mục tiêu thành công!')
+        setShowConfirm(false)
     }
-    const progressPercentage = ((currentAmount / targetAmount) * 100).toFixed(2);
+
+    const handleUpdateProgress = () => {
+        const newAmount = prompt('Nhập số tiền bạn muốn thêm vào:', '0')
+        if (newAmount && !isNaN(newAmount)) {
+            const totalAmount = parseFloat(current) + parseFloat(newAmount)
+            setCurrent(totalAmount)  // Cập nhật UI ngay lập tức
+            updateProgress(_id, totalAmount)
+            toast.success('Cập nhật tiến độ thành công!')
+        } else {
+            toast.error('Vui lòng nhập một số hợp lệ!')
+        }
+    }
 
     return (
-        <SavingItemStyled indicator={indicatorColor}>
-            <div className="icon">
-                {money}
-            </div>
-            <div className="content">
-                <h5>Mục tiêu: {goal}</h5>
-                <div className="inner-content">
-                    <div className="text">
-                        <p>{money} {currentAmount}/{targetAmount}đ</p>
-                        <p>Tiến độ: {progressPercentage}%</p>
-                    </div>
-                    <div className="btn-con">
-                        <UpdateButtonStyled
-                            onClick={() => {
-                                const newAmount = prompt('Nhập số tiền bạn muốn thêm vào:', '0');
-                                if (newAmount && !isNaN(newAmount)) {
-                                    const totalAmount = parseFloat(currentAmount) + parseFloat(newAmount);
-                                    updateProgress(id, totalAmount);
-                                } else {
-                                    alert('Vui lòng nhập một số hợp lệ!');
-                                }
-                            }}
-                        >
-                            Cập nhật tiến độ
-                        </UpdateButtonStyled>
-                        <DeleteButtonStyled
-                            onClick={() => deleteItem(id)}
-                        >
-                            <i>{trash}</i>
-                        </DeleteButtonStyled>
+        <>
+            <SavingItemStyled indicator={indicatorColor}>
+                <div className="icon">{money}</div>
+                <div className="content">
+                    <h5>Mục tiêu: {goal}</h5>
+                    <div className="inner-content">
+                        <div className="text">
+                            <p>{money} {current}/{targetAmount}đ</p>
+                            <p>Tiến độ: {progressPercentage}%</p>
+                        </div>
+                        <div className="btn-con">
+                            <UpdateButtonStyled onClick={handleUpdateProgress}>
+                                Cập nhật tiến độ
+                            </UpdateButtonStyled>
+                            <DeleteButtonStyled onClick={handleDelete}>
+                                <i>{trash}</i>
+                            </DeleteButtonStyled>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </SavingItemStyled>
-    );
+            </SavingItemStyled>
+
+            {showConfirm && (
+                <ConfirmModal
+                    message="Bạn có chắc chắn muốn xóa mục tiêu này không?"
+                    onConfirm={confirmDelete}
+                    onCancel={() => setShowConfirm(false)}
+                />
+            )}
+        </>
+    )
 }
+
+
+
+
 
 const SavingItemStyled = styled.div`
     background: #FCF6F9;
@@ -135,7 +161,7 @@ const UpdateButtonStyled = styled.button`
     transition: all 0.3s ease;
 
     &:hover {
-        background-color: var(--color-green);
+        background: linear-gradient(to right, #6dd5ed, #2193b0);
         transform: scale(1.05);
     }
 `;

@@ -153,11 +153,43 @@ const updateUser = async (userId, updateData) => {
   }
 }
 
+const changePassword = async (userId, oldPassword, newPassword) => {
+  try {
+    console.log('changePassword input:', { userId, oldPassword, newPassword })
+
+    const user = await userModel.findOneById(userId)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy người dùng')
+    }
+
+    console.log('Found user:', user)
+
+    const isMatch = await bcryptjs.compare(oldPassword, user.password)
+    if (!isMatch) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Mật khẩu cũ không chính xác')
+    }
+
+    const hashedNewPassword = await bcryptjs.hash(newPassword, 10)
+
+    await userModel.update(userId, {
+      password: hashedNewPassword,
+      updatedAt: new Date()
+    })
+
+    return { message: 'Đổi mật khẩu thành công' }
+  } catch (error) {
+    console.log('Change password error:', error)
+    throw error
+  }
+}
+
+
 
 module.exports = {
   createNew,
   verifyAccount,
   login,
   getUserById,
-  updateUser
+  updateUser,
+  changePassword
 }

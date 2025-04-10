@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
+import { toast } from 'react-toastify'
 import { dateFormat } from '../../utils/dateFormat';
-import { calender, piggy, users, trash, comment, money } from '../../utils/Icons';
+import { calender, piggy, users, trash, comment, money } from '../../utils/Icons'
 import Button from '../Button/Button';
+import ConfirmDeleteModal from '../../utils/ConfirmModal'
 
 function DebtItem({
     id,
@@ -15,46 +17,61 @@ function DebtItem({
     indicatorColor,
     type
 }) {
+    const [showModal, setShowModal] = useState(false);
+
+    const handleDelete = () => {
+        deleteItem(id)
+        toast.success('Xóa khoản vay/cho vay thành công!')
+        setShowModal(false)
+    }
 
     const debtCategoryIcon = () => {
         switch (type) {
             case 'borrow':
-                return piggy; // Nợ vay
+                return piggy
             case 'lend':
-                return users; // Nợ cho vay
+                return users
             default:
                 return ''
         }
     }
 
     return (
-        <DebtItemStyled indicator={indicatorColor}>
-            <div className="icon">
-                {debtCategoryIcon()}
-            </div>
-            <div className="content">
-                <h5>{type === 'borrow' ? `Cho ${lender} vay` : `Nợ vay từ ${borrower}`}</h5>
-                <div className="inner-content">
-                    <div className="text">
-                        <p>{money}{amount}đ</p>
-                        <p>{calender}{dateFormat(dueDate)}</p>
-                        <p>{comment}{description}</p>
-                    </div>
-                    <div className="btn-con">
-                        <Button
-                            icon={trash}
-                            bPad={'1rem'}
-                            bRad={'50%'}
-                            bg={'var(--primary-color)'}
-                            color={'#fff'}
-                            iColor={'#fff'}
-                            hColor={'var(--color-green)'}
-                            onClick={() => deleteItem(id)}
-                        />
+        <>
+            <DebtItemStyled indicator={indicatorColor}>
+                <div className="icon">{debtCategoryIcon()}</div>
+                <div className="content">
+                    <h5>{type === 'borrow' ? `Vay từ ${lender}` : `Cho ${borrower} vay`}</h5>
+                    <div className="inner-content">
+                        <div className="text">
+                            <p>{money}{amount}đ</p>
+                            <p>{calender}{dateFormat(dueDate)}</p>
+                            <p>{comment}{description}</p>
+                        </div>
+                        <div className="btn-con">
+                            <Button
+                                icon={trash}
+                                bPad={'1rem'}
+                                bRad={'50%'}
+                                bg={'var(--primary-color)'}
+                                color={'#fff'}
+                                iColor={'#fff'}
+                                hColor={'var(--color-green)'}
+                                onClick={() => setShowModal(true)}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
-        </DebtItemStyled>
+            </DebtItemStyled>
+
+            {showModal && (
+                <ConfirmDeleteModal
+                    message="Bạn có chắc chắn muốn xóa khoản vay/cho vay này không?"
+                    onConfirm={handleDelete}
+                    onCancel={() => setShowModal(false)}
+                />
+            )}
+        </>
     )
 }
 
@@ -124,11 +141,11 @@ const DebtItemStyled = styled.div`
                     opacity: 0.8;
                 }
             }
-                .btn-con {
-                    display: flex;
-                    gap: 1rem;
-                    padding: 0 0 0 1rem;
-                }
+            .btn-con {
+                display: flex;
+                gap: 1rem;
+                padding: 0 0 0 1rem;
+            }
         }
     }
 `;

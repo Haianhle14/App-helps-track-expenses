@@ -14,11 +14,25 @@ export const GlobalProvider = ({ children }) => {
 
     const userId = localStorage.getItem('userId')
 
+    // Reset all data when userId changes
+    const resetAllData = useCallback(() => {
+        setSavings([])
+        setIncomes([])
+        setExpenses([])
+        setDebts([])
+        setError(null)
+    }, [])
+
     // --- USER ---
     const getUser = useCallback(async () => {
-        if (!userId) return
+        if (!userId) {
+            resetAllData()
+            return
+        }
         try {
-            const { data } = await axios.get(`${BASE_URL}users/${userId}`)
+            const { data } = await axios.get(`${BASE_URL}users/${userId}`, {
+                params: { _: new Date().getTime() } // Cache buster
+            })
             setUser(data)
             if (data?.displayName) {
                 localStorage.setItem('displayName', data.displayName)
@@ -26,38 +40,72 @@ export const GlobalProvider = ({ children }) => {
         } catch (err) {
             console.error('Error fetching user:', err)
             setUser(null)
+            resetAllData()
         }
-    }, [userId])
+    }, [userId, resetAllData])
 
     const updateUser = async (updateData) => {
         if (!user?._id) throw new Error('Không tìm thấy user ID')
-        const res = await axios.patch(`${BASE_URL}users/${userId}/update-profile`, { updateData })
+        const res = await axios.put(`${BASE_URL}users/${userId}/update-profile`, { updateData })
         
         const updatedUser = res.data
         setUser(updatedUser)
         localStorage.setItem('user', JSON.stringify(updatedUser))
     }
       
+    const changePassword = async (oldPassword, newPassword) => {
+        if (!userId) throw new Error('Không tìm thấy user ID')
+    
+        try {
+            const { data } = await axios.put(`${BASE_URL}users/${userId}/change-password`, {
+                oldPassword,
+                newPassword,
+            })
+    
+            return data.message
+        } catch (err) {
+            throw new Error(err.response?.data?.message || 'Lỗi khi đổi mật khẩu')
+        }
+    }
     
 
     const logout = () => {
         setUser(null)
+        resetAllData()
         localStorage.removeItem('token')
         localStorage.removeItem('userId')
         localStorage.removeItem('username')
+        localStorage.removeItem('displayName')
+        localStorage.removeItem('user')
     }
     
 
     // --- SAVINGS ---
     const getSavings = useCallback(async () => {
-        if (!userId) return
-        try {
-            const { data } = await axios.get(`${BASE_URL}savings`, { params: { userId } })
-            setSavings(data)
-        } catch (err) {
-            console.error('Error fetching savings:', err)
+        if (!userId) {
+            setSavings([]);
+            return;
         }
-    }, [userId])
+    
+        try {
+            const { data } = await axios.get(`${BASE_URL}savings`, { 
+                params: { userId }
+            });
+    
+            if (Array.isArray(data)) {
+                setSavings(data); // Không cần lọc lại theo userId nếu API đã xử lý
+            } else {
+                setSavings([]);
+                setError("Dữ liệu trả về không hợp lệ");
+            }
+        } catch (err) {
+            console.error("Lỗi khi tải dữ liệu tiết kiệm:", err);
+            setSavings([]);
+            setError("Lỗi khi tải dữ liệu tiết kiệm: " + err.message);
+        }
+    }, [userId]);
+    
+    
 
     const addSaving = async (saving) => {
         if (!saving.goal || !saving.targetAmount) {
@@ -78,44 +126,80 @@ export const GlobalProvider = ({ children }) => {
 
     const deleteSaving = async (id) => {
         if (!id) {
-          console.error('Không có ID để xoá!');
-          return;
+          console.error('Không có ID để xoá!')
+          return
         }
       
         try {
-          await axios.delete(`${BASE_URL}savings/${id}`);
-          getSavings();
+          await axios.delete(`${BASE_URL}savings/${id}`)
+          getSavings()
         } catch (err) {
-          console.error('Error deleting saving:', err.response?.data || err.message);
+          console.error('Error deleting saving:', err.response?.data || err.message)
         }
-      };
+    }
     
 
     const updateSavingProgress = async (id, newAmount) => {
-        const parsedAmount = Number(newAmount)
+        const parsedAmount = Number(newAmount);
         if (isNaN(parsedAmount) || parsedAmount < 0) {
-            setError('Số tiền không hợp lệ!')
-            return
+            setError('Số tiền không hợp lệ!');
+            return;
         }
+    
+        // Lưu lại dữ liệu cũ để rollback nếu có lỗi
+        const previousSavings = [...savings];
+    
+        // Cập nhật UI ngay lập tức bằng cách tạo một bản sao mới của danh sách
+        setSavings(prevSavings =>
+            prevSavings.map(saving =>
+                saving._id === id
+                    ? { ...saving, currentAmount: parsedAmount, updatedAt: new Date().toISOString() }
+                    : saving
+            )
+        );
+    
         try {
+            // Gọi API để cập nhật trên server
             await axios.put(`${BASE_URL}savings/${id}`, {
                 currentAmount: parsedAmount,
                 userId,
-            })
-            getSavings()
+            });
+    
+            // Không cần gọi `getSavings()` vì UI đã cập nhật ngay lập tức
         } catch (err) {
-            console.error('Error updating saving progress:', err)
+            console.error('Lỗi khi cập nhật tiến trình tiết kiệm:', err);
+    
+            // Nếu thất bại, khôi phục dữ liệu cũ (Rollback)
+            setSavings(previousSavings);
+    
+            setError('Cập nhật không thành công: ' + (err.response?.data?.message || err.message));
         }
-    }
+    };
+    
+    
 
     // --- DEBTS ---
     const getDebts = useCallback(async () => {
-        if (!userId) return
+        if (!userId) {
+            setDebts([])
+            return
+        }
         try {
-            const { data } = await axios.get(`${BASE_URL}get-debts`, { params: { userId } })
-            setDebts(data)
+            const { data } = await axios.get(`${BASE_URL}get-debts`, { 
+                params: { 
+                    userId,
+                    _: new Date().getTime() 
+                } 
+            })
+            if (data.every(item => item.userId === userId)) {
+                setDebts(data)
+            } else {
+                setDebts([])
+                setError('Dữ liệu không khớp với người dùng hiện tại')
+            }
         } catch (err) {
             console.error('Error fetching debts:', err)
+            setDebts([])
         }
     }, [userId])
 
@@ -147,14 +231,26 @@ export const GlobalProvider = ({ children }) => {
 
     // --- INCOMES ---
     const getIncomes = useCallback(async () => {
-        if (!userId) return
+        if (!userId) {
+            setIncomes([])
+            return
+        }
         try {
             const { data } = await axios.get(`${BASE_URL}get-incomes`, {
-                params: { userId }
+                params: { 
+                    userId,
+                    _: new Date().getTime()
+                }
             })
-            setIncomes(data)
+            if (data.every(item => item.userId === userId)) {
+                setIncomes(data)
+            } else {
+                setIncomes([])
+                setError('Dữ liệu không khớp với người dùng hiện tại')
+            }
         } catch (err) {
             console.error('Error fetching incomes:', err)
+            setIncomes([])
         }
     }, [userId])
 
@@ -188,12 +284,26 @@ export const GlobalProvider = ({ children }) => {
 
     // --- EXPENSES ---
     const getExpenses = useCallback(async () => {
-        if (!userId) return
+        if (!userId) {
+            setExpenses([])
+            return
+        }
         try {
-            const { data } = await axios.get(`${BASE_URL}get-expenses`, { params: { userId } })
-            setExpenses(data)
+            const { data } = await axios.get(`${BASE_URL}get-expenses`, { 
+                params: { 
+                    userId,
+                    _: new Date().getTime()
+                } 
+            })
+            if (data.every(item => item.userId === userId)) {
+                setExpenses(data)
+            } else {
+                setExpenses([])
+                setError('Dữ liệu không khớp với người dùng hiện tại')
+            }
         } catch (err) {
             console.error('Error fetching expenses:', err)
+            setExpenses([])
         }
     }, [userId])
 
@@ -248,6 +358,7 @@ export const GlobalProvider = ({ children }) => {
 
 
     useEffect(() => {
+        resetAllData()
         if (userId) {
             getUser()
             getSavings()
@@ -255,7 +366,7 @@ export const GlobalProvider = ({ children }) => {
             getIncomes()
             getExpenses()
         }
-    }, [userId, getUser, getSavings, getDebts, getIncomes, getExpenses])
+    }, [userId, getUser, getSavings, getDebts, getIncomes, getExpenses, resetAllData])
 
     return (
         <GlobalContext.Provider
@@ -266,7 +377,8 @@ export const GlobalProvider = ({ children }) => {
                 incomes, getIncomes, addIncome, deleteIncome, totalIncome,
                 expenses, getExpenses, addExpense, deleteExpense, totalExpenses,
                 totalBalance, transactionHistory, savingsProgress,
-                error, setError
+                error, setError,
+                changePassword
             }}
         >
             {children}

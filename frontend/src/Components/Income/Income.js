@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { useGlobalContext } from '../../context/globalContext';
-import { InnerLayout } from '../../styles/Layouts';
-import Form from '../Form/Form';
-import IncomeItem from '../IncomeItem/IncomeItem';
+import { useGlobalContext } from '../../context/globalContext'
+import { InnerLayout } from '../../styles/Layouts'
+import Form from '../Form/Form'
+import IncomeItem from '../IncomeItem/IncomeItem'
+import { toast } from 'react-toastify'
 
 function Income() {
     const {incomes, getIncomes, deleteIncome, totalIncome} = useGlobalContext()
@@ -11,6 +12,7 @@ function Income() {
     useEffect(() =>{
         getIncomes()
     }, [getIncomes])
+
     return (
         <IncomeStyled>
             <InnerLayout>
@@ -18,7 +20,7 @@ function Income() {
                 <h2 className="total-income">Tổng thu nhập: <span>{totalIncome()}đ</span></h2>
                 <div className="income-content">
                     <div className="form-container">
-                        <Form />
+                        <Form onSuccess={() => toast.success('Thêm thu nhập thành công!')} />
                     </div>
                     <div className="incomes">
                         {incomes.map((income) => {
