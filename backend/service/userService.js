@@ -12,7 +12,7 @@ const { JwtProvider } = require('../providers/JwtProvider')
  */
 const createNew = async (reqBody) => {
   try {
-    console.log('🚀 ~ Register req.body:', reqBody)
+    console.log('Register req.body:', reqBody)
 
     // 1. Kiểm tra email và password
     if (!reqBody.email || !reqBody.password) {
@@ -52,7 +52,7 @@ const createNew = async (reqBody) => {
 
     return pickUser(getNewUser)
   } catch (error) {
-    console.error('❌ createNew error:', error)
+    console.error('createNew error:', error)
     throw error
   }
 }
@@ -137,9 +137,27 @@ const getUserById = async (userId) => {
   }
 }
 
+const updateUser = async (userId, updateData) => {
+  try {
+    const existingUser = await userModel.findOneById(userId)
+    if (!existingUser) throw new Error('Không tìm thấy người dùng')
+
+    const updatedUser = await userModel.update(userId, {
+      ...updateData,
+      updatedAt: Date.now()
+    })
+
+    return updatedUser
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+
 module.exports = {
   createNew,
   verifyAccount,
   login,
-  getUserById
+  getUserById,
+  updateUser
 }

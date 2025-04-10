@@ -4,7 +4,7 @@ const SavingSchema = new mongoose.Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User', // Tham chiếu đến bảng User
+            ref: 'User',
             required: true
           },
         goal: {

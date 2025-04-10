@@ -12,6 +12,7 @@ import Debts from './Components/Debts/Debts'
 import Save from './Components/Save/Savings'
 import Login from './pages/Auth/LoginForm'
 import Register from './pages/Auth/RegisterForm'
+import Setting from './Components/Setting/Setting'
 
 function App() {
   const [active, setActive] = useState(1)
@@ -32,16 +33,18 @@ function App() {
     navigate('/dashboard')
   }
 
-  const displayData = () => {
-    switch (active) {
-      case 1: return <Dashboard />
-      case 2: return <Income />
-      case 3: return <Expenses />
-      case 4: return <Debts />
-      case 5: return <Save />
-      default: return <Dashboard />
-    }
+
+const displayData = () => {
+  switch (active) {
+    case 1: return <Dashboard />
+    case 2: return <Income />
+    case 3: return <Expenses />
+    case 4: return <Debts />
+    case 5: return <Save />
+    case 6: return <Setting />
+    default: return <Dashboard />
   }
+}
 
   if (!isAuthenticated) {
     return (
@@ -76,7 +79,8 @@ function App() {
             <Route path="/expenses" element={displayData()} />
             <Route path="/debts" element={displayData()} />
             <Route path="/save" element={displayData()} />
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="/setting" element={displayData()} />
+            <Route path="*" element={<Navigate to="" />} />
           </Routes>
         </main>
       </MainLayout>

@@ -8,7 +8,6 @@ const createNew = async (req, res, next) => {
     res.status(StatusCodes.CREATED).json(createUser)
   }
   catch (error) { 
-    // Trả về thông báo lỗi chi tiết hơn
     res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ 
       message: error.message || 'Server Error'
     }); 
@@ -46,9 +45,26 @@ const getUserById = async (req, res, next) => {
   }
 }
 
+const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const { updateData } = req.body
+
+    if (!updateData || typeof updateData !== 'object') {
+      return res.status(400).json({ message: 'Dữ liệu cập nhật không hợp lệ' })
+    }
+
+    const updatedUser = await userServices.updateUser(userId, updateData)
+    return res.status(200).json(updatedUser)
+  } catch (error) {
+    return res.status(500).json({ message: error.message || 'Lỗi khi cập nhật người dùng' })
+  }
+}
+
 module.exports = {
   createNew,
   verifyAccount,
   login,
-  getUserById
+  getUserById,
+  updateUser
 };

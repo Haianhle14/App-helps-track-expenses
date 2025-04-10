@@ -14,22 +14,19 @@ function Saving() {
         setError,
     } = useGlobalContext();
 
-    // Handle Add Saving
     const handleAddSaving = (newSaving) => {
         addSaving(newSaving);
     };
 
-    // Handle Delete Saving
+
     const handleDeleteSaving = (id) => {
         deleteSaving(id);
     };
 
-    // Handle Update Saving Progress
     const handleUpdateProgress = (id, newAmount) => {
         updateSavingProgress(id, newAmount);
     };
 
-    // Display Error Message
     useEffect(() => {
         if (error) {
             alert(error);

@@ -1,4 +1,3 @@
-// ⚠️ Đầu file giữ nguyên như cũ
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react"
 import axios from 'axios'
 
@@ -21,8 +20,8 @@ export const GlobalProvider = ({ children }) => {
         try {
             const { data } = await axios.get(`${BASE_URL}users/${userId}`)
             setUser(data)
-            if (data?.username) {
-                localStorage.setItem('username', data.username)
+            if (data?.displayName) {
+                localStorage.setItem('displayName', data.displayName)
             }
         } catch (err) {
             console.error('Error fetching user:', err)
@@ -30,19 +29,16 @@ export const GlobalProvider = ({ children }) => {
         }
     }, [userId])
 
-    const updateUser = async (userData) => {
-        try {
-            const { data } = await axios.put(`${BASE_URL}users/profile`, {
-                userId,
-                ...userData
-            })
-            setUser(data)
-            return data
-        } catch (err) {
-            setError(err.response?.data?.message || 'Error updating user')
-            throw err
-        }
+    const updateUser = async (updateData) => {
+        if (!user?._id) throw new Error('Không tìm thấy user ID')
+        const res = await axios.patch(`${BASE_URL}users/${userId}/update-profile`, { updateData })
+        
+        const updatedUser = res.data
+        setUser(updatedUser)
+        localStorage.setItem('user', JSON.stringify(updatedUser))
     }
+      
+    
 
     const logout = () => {
         setUser(null)
@@ -81,13 +77,19 @@ export const GlobalProvider = ({ children }) => {
     }
 
     const deleteSaving = async (id) => {
-        try {
-            await axios.delete(`${BASE_URL}savings/${id}`)
-            getSavings()
-        } catch (err) {
-            console.error('Error deleting saving:', err)
+        if (!id) {
+          console.error('Không có ID để xoá!');
+          return;
         }
-    }
+      
+        try {
+          await axios.delete(`${BASE_URL}savings/${id}`);
+          getSavings();
+        } catch (err) {
+          console.error('Error deleting saving:', err.response?.data || err.message);
+        }
+      };
+    
 
     const updateSavingProgress = async (id, newAmount) => {
         const parsedAmount = Number(newAmount)
@@ -132,12 +134,14 @@ export const GlobalProvider = ({ children }) => {
 
     const deleteDebt = async (id) => {
         try {
-            await axios.delete(`${BASE_URL}delete-debt/${id}`)
+            const userId = localStorage.getItem("userId")
+            await axios.delete(`${BASE_URL}delete-debt/${id}?userId=${userId}`)
             getDebts()
         } catch (err) {
             console.error('Error deleting debt:', err)
         }
     }
+    
 
     const totalDebts = () => debts.reduce((acc, debt) => acc + debt.amount, 0)
 
@@ -242,7 +246,7 @@ export const GlobalProvider = ({ children }) => {
         return { totalCurrent, totalTarget }
     }
 
-    // --- INIT ---
+
     useEffect(() => {
         if (userId) {
             getUser()

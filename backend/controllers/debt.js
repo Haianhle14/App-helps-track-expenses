@@ -5,7 +5,6 @@ exports.addDebt = async (req, res) => {
   const { type, amount, borrower, lender, description, dueDate, userId } = req.body
 
   try {
-    // Kiểm tra dữ liệu
     if (!type || !amount || !dueDate || !userId) {
       return res.status(400).json({ message: 'Vui lòng nhập đầy đủ các trường bắt buộc!' })
     }
@@ -21,13 +20,13 @@ exports.addDebt = async (req, res) => {
       lender,
       description,
       dueDate,
-      userId // 👈 Liên kết nợ với người dùng
+      userId
     })
 
     await debt.save()
     res.status(200).json({ message: 'Khoản nợ đã được thêm thành công!' })
   } catch (error) {
-    console.error('❌ addDebt error:', error)
+    console.error('addDebt error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
 }
@@ -42,7 +41,7 @@ exports.getDebts = async (req, res) => {
     const debts = await DebtModel.find({ userId }).sort({ createdAt: -1 })
     res.status(200).json(debts)
   } catch (error) {
-    console.error('❌ getDebts error:', error)
+    console.error('getDebts error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
 }
@@ -63,7 +62,7 @@ exports.deleteDebt = async (req, res) => {
 
     res.status(200).json({ message: 'Khoản nợ đã được xoá!' })
   } catch (error) {
-    console.error('❌ deleteDebt error:', error)
+    console.error('deleteDebt error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
 }

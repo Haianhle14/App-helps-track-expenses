@@ -20,13 +20,13 @@ exports.addIncome = async (req, res) => {
       category,
       description,
       date,
-      userId  // 👈 Nhận từ req.body
+      userId
     })
 
     await income.save()
     res.status(200).json({ message: 'Thu nhập đã được thêm thành công!' })
   } catch (error) {
-    console.error('❌ addIncome error:', error)
+    console.error('addIncome error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
   console.log('req.body:', req.body)
@@ -44,7 +44,7 @@ exports.getIncomes = async (req, res) => {
     const incomes = await IncomeModel.find({ userId }).sort({ createdAt: -1 })
     res.status(200).json(incomes)
   } catch (error) {
-    console.error('❌ getIncomes error:', error)
+    console.error('getIncomes error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
 }
@@ -54,7 +54,6 @@ exports.deleteIncome = async (req, res) => {
   const { id } = req.params
 
   try {
-    // Có thể cần xác thực userId nếu muốn chắc chắn người dùng chỉ xoá của họ
     const deletedIncome = await IncomeModel.findByIdAndDelete(id)
 
     if (!deletedIncome) {
@@ -63,7 +62,7 @@ exports.deleteIncome = async (req, res) => {
 
     res.status(200).json({ message: 'Thu nhập đã được xoá!' })
   } catch (error) {
-    console.error('❌ deleteIncome error:', error)
+    console.error('deleteIncome error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
 }

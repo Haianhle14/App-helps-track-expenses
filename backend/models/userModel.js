@@ -60,7 +60,6 @@ const userSchema = new mongoose.Schema({
   }
 })
 
-// Khai báo Model
 const User = mongoose.model('User', userSchema)
 
 // Validation với Joi
@@ -83,6 +82,7 @@ const INVALID_UPDATE_FIELDS = ['_id', 'email', 'username', 'createdAt']
 const validateBeforeCreate = async (data) => {
   return await USER_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
+
 
 // Thao tác với Model
 const createNew = async (data) => {
@@ -120,7 +120,6 @@ const update = async (userId, updateData) => {
   }
 }
 
-// Export theo CommonJS
 module.exports = {
   userModel: {
     USER_ROLES,

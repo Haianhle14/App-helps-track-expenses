@@ -5,7 +5,6 @@ exports.addExpense = async (req, res) => {
   const { title, amount, category, description, date, userId } = req.body
 
   try {
-    // Kiểm tra dữ liệu đầu vào
     if (!title || !category || !date || !userId) {
       return res.status(400).json({ message: 'Vui lòng nhập đầy đủ các trường bắt buộc!' })
     }
@@ -20,13 +19,13 @@ exports.addExpense = async (req, res) => {
       category,
       description,
       date,
-      userId // 👈 Gắn userId từ req.body
+      userId
     })
 
     await expense.save()
     res.status(200).json({ message: 'Chi tiêu đã được thêm thành công!' })
   } catch (error) {
-    console.error('❌ addExpense error:', error)
+    console.error('addExpense error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
 }
@@ -41,7 +40,7 @@ exports.getExpense = async (req, res) => {
     const expenses = await ExpenseModel.find({ userId }).sort({ createdAt: -1 })
     res.status(200).json(expenses)
   } catch (error) {
-    console.error('❌ getExpense error:', error)
+    console.error('getExpense error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
 }
@@ -62,7 +61,7 @@ exports.deleteExpense = async (req, res) => {
 
     res.status(200).json({ message: 'Chi tiêu đã được xoá!' })
   } catch (error) {
-    console.error('❌ deleteExpense error:', error)
+    console.error('deleteExpense error:', error)
     res.status(500).json({ message: 'Lỗi máy chủ!' })
   }
 }

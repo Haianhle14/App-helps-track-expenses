@@ -1,4 +1,4 @@
-import {dashboard, expenses, trend, handshake, clipboard} from '../utils/Icons'
+import {dashboard, expenses, trend, handshake, clipboard, settings} from '../utils/Icons'
 
 export const menuItems = [
     {
@@ -31,4 +31,10 @@ export const menuItems = [
         icon: clipboard,
         link: "/dashboard",
     },
+    {
+        id: 6,
+        title: "Cài đặt",
+        icon: settings,
+        link: "/setting"
+    }
 ]
