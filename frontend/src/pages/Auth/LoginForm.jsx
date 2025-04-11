@@ -58,9 +58,9 @@ function LoginForm({ onLoginSuccess }) {
   return (
     <form onSubmit={handleSubmit(submitLogIn)}>
       <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-        <MuiCard sx={{ minWidth: 380, maxWidth: 380, marginTop: '6em' }}>
-          <Box sx={{ margin: '1em', display: 'flex', justifyContent: 'center', gap: 1 }}>
-            <div>Đăng Nhập</div>
+        <MuiCard sx={{ minWidth: 480, maxWidth: 480, marginTop: '6em' }}>
+          <Box sx={{ color: '#222260', fontSize: '24px', margin: '1em', display: 'flex', justifyContent: 'center', gap: 1 }}>
+            <h2>Đăng nhập vào website</h2>
           </Box>
 
           <Box sx={{ padding: '0 1em 1em 1em' }}>

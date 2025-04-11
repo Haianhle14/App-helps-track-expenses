@@ -252,26 +252,31 @@ export const GlobalProvider = ({ children }) => {
             console.error('Error deleting expense:', err)
         }
     }
-
+    
+    // --- TỔNG HỢP ---
     const totalExpenses = () => {
         const expenseSum = expenses.reduce((acc, expense) => acc + expense.amount, 0)
         const savingSpent = savings.reduce((acc, saving) => acc + saving.currentAmount, 0)
         return expenseSum + savingSpent
     }
 
-    // --- TỔNG HỢP ---
     const totalBalance = () => totalIncome() - totalExpenses()
 
     const transactionHistory = () => {
         const history = [
             ...incomes.map(i => ({ ...i, type: 'Thu nhập' })),
             ...expenses.map(e => ({ ...e, type: 'Chi tiêu' })),
-            ...debts.map(d => ({ ...d, type: 'Vay, Nợ' })),
-            ...savings.map(s => ({ ...s, type: 'Mục tiêu', createdAt: s.updatedAt || s.createdAt })),
+            ...debts.map(d => ({ 
+                ...d, 
+                type: d.type === 'lend' ? 'Cho vay' : d.type === 'borrow' ? 'Vay' : 'Vay, Nợ',
+                title: d.type === 'lend' ? 'Cho vay' : d.type === 'borrow' ? 'Vay' : d.type
+            })),
+            ...savings.map(s => ({ ...s, type: 'Mục tiêu', title: s.goal, createdAt: s.updatedAt || s.createdAt })),
         ]
-        return history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3)
+        return history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3);
     }
-
+    
+    
     const savingsProgress = () => {
         const totalCurrent = savings.reduce((acc, s) => acc + s.currentAmount, 0)
         const totalTarget = savings.reduce((acc, s) => acc + s.targetAmount, 0)

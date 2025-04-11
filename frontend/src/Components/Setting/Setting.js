@@ -4,13 +4,16 @@ import axios from 'axios'
 import EditUsernameModal from './EditUsernameModal'
 import EditBioModal from './EditBioModal'
 import ChangePasswordModal from './ChangePasswordModal'
-
+import Setup2FA from './Setup2fa'
 function Setting() {
     const [showEditModal, setShowEditModal] = useState(false)
     const [showEditBio, setShowEditBio] = useState(false)
     const [showChangePassword, setShowChangePassword] = useState(false)
+    const [showSetup2FA, setShowSetup2FA] = useState(false);
+    const [activeTab, setActiveTab] = useState('personal')
     const [displayName, setdisplayName] = useState('')
     const [bio, setBio] = useState('')
+    const [is2FAEnabled, setIs2FAEnabled] = useState(false);
 
     const userId = localStorage.getItem('userId')
 
@@ -41,6 +44,11 @@ function Setting() {
         setShowEditBio(false)
     }
 
+    const handleSuccessSetup2FA = (updatedUser) => {
+        setIs2FAEnabled(updatedUser.is2FAEnabled);
+        setShowSetup2FA(false);
+    };
+
     return (
         <SettingStyled>
             {/* phần render giữ nguyên */}
@@ -48,32 +56,64 @@ function Setting() {
                 <div className="sidebar">
                     <h2>Cài đặt tài khoản</h2>
                     <p>Quản lý cài đặt tài khoản của bạn như thông tin cá nhân, cài đặt bảo mật, quản lý thông báo, v.v.</p>
-                    <button className="active-btn">Thông tin cá nhân</button>
+                    <button 
+                        className={`tab-btn ${activeTab === 'personal' ? 'active' : ''}`} 
+                        onClick={() => setActiveTab('personal')}
+                    >
+                        Thông tin cá nhân
+                    </button>
+                    <button 
+                        className={`tab-btn ${activeTab === 'security' ? 'active' : ''}`} 
+                        onClick={() => setActiveTab('security')}
+                    >
+                        Mật khẩu và bảo mật
+                    </button>
+
                 </div>
 
                 <div className="content">
-                    <h2>Thông tin cá nhân</h2>
-                    <p>Quản lý thông tin cá nhân của bạn.</p>
+                    {activeTab === 'personal' ? (
+                        <>
+                            <h2>Thông tin cá nhân</h2>
+                            <p>Quản lý thông tin cá nhân của bạn.</p>
 
-                    <div className="section">
-                        <h4>Thông tin cơ bản</h4>
-                        <p>Quản lý tên hiển thị, tên người dùng, bio và avatar của bạn.</p>
+                            <div className="section">
+                                <h4>Thông tin cơ bản</h4>
+                                <p>Quản lý tên hiển thị, tên người dùng, bio và avatar của bạn.</p>
 
-                        <div className="info-box">
-                            <div className="info-item clickable" onClick={() => setShowEditModal(true)}>
-                                <span className="label">Tên người dùng</span>
-                                <span className="value">{displayName || 'Chưa có tên'}</span>
+                                <div className="info-box">
+                                    <div className="info-item clickable" onClick={() => setShowEditModal(true)}>
+                                        <span className="label">Tên người dùng</span>
+                                        <span className="value">{displayName || 'Chưa có tên'}</span>
+                                    </div>
+                                    <div className="info-item clickable" onClick={() => setShowEditBio(true)}>
+                                        <span className="label">Giới thiệu</span>
+                                        <span className="value">{bio || 'Chưa cập nhật'}</span>
+                                    </div>
+                                    
+                                </div>
                             </div>
-                            <div className="info-item clickable" onClick={() => setShowEditBio(true)}>
-                                <span className="label">Giới thiệu</span>
-                                <span className="value">{bio || 'Chưa cập nhật'}</span>
+                        </>
+                    ) : (
+                        <>
+                            <h2>Mật khẩu và bảo mật</h2>
+                            <p>Quản lý mật khẩu và cài đặt bảo mật.</p>
+                            <div className="section">
+                                <h4>Đăng nhập & khôi phục</h4>
+                                <p>Quản lý mật khẩu và xác minh 2 bước.</p>
+                                <div className="info-box">
+                                    <div className="info-item clickable" onClick={() => setShowChangePassword(true)}>
+                                        <span className="label">Đổi mật khẩu</span>
+                                        <span className="value">********</span>
+                                    </div>
+                                    <div className="info-item clickable" onClick={() => setShowSetup2FA(true)}>
+                                    <span className="label">Xác minh 2 bước</span>
+                                    <span className="value">{is2FAEnabled ? 'Đã bật' : 'Đang tắt'}</span>
+                                </div>
+                                </div>
                             </div>
-                            <div className="info-item clickable" onClick={() => setShowChangePassword(true)}>
-                                <span className="label">Đổi mật khẩu</span>
-                                <span className="value">********</span>
-                            </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -98,6 +138,13 @@ function Setting() {
                     onClose={() => setShowChangePassword(false)}
                 />
             )}
+            {showSetup2FA && 
+                <Setup2FA 
+                    isOpen={showSetup2FA} 
+                    toggleOpen={setShowSetup2FA} user={{ _id: userId }} 
+                    handleSuccessSetup2FA={handleSuccessSetup2FA} 
+                />
+            }
         </SettingStyled>
     )
 }
@@ -134,15 +181,31 @@ const SettingStyled = styled.div`
             color: #555;
             font-size: 0.95rem;
         }
-
-        .active-btn {
-            background-color: #222260;
-            color: white;
+        
+        .tab-btn {
+            background-color: transparent;
+            color: #222260;
             padding: 0.8rem 1.2rem;
             border: none;
             border-radius: 12px;
             cursor: pointer;
             font-size: 1rem;
+            text-align: left;
+            transition: background 0.3s ease-in-out;
+
+            &:hover {
+                background-color: rgba(34, 34, 96, 0.1);
+            }
+
+            &.active {
+                background-color: #222260;
+                color: white;
+                padding: 0.8rem 1.2rem;
+                border: none;
+                border-radius: 12px;
+                cursor: pointer;
+                font-size: 1rem;
+            }
         }
     }
 
