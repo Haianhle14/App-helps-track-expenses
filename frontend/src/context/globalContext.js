@@ -12,6 +12,8 @@ export const GlobalProvider = ({ children }) => {
     const [error, setError] = useState(null)
     const [user, setUser] = useState(null)
     const [token, setToken] = useState(localStorage.getItem('token')) // Thêm state token
+    const [twoFactorQR, setTwoFactorQR] = useState(null);
+    const [is2FAVerified, setIs2FAVerified] = useState(false);
 
     const userId = localStorage.getItem('userId')
 
@@ -22,6 +24,53 @@ export const GlobalProvider = ({ children }) => {
         setDebts([])
         setError(null)
     }, [])
+
+    // --- 2FA ---
+
+    const get2FAQrCode = async (userId) => {
+        if (!userId) {
+          console.warn('⚠️ userId không tồn tại khi gọi get2FAQrCode');
+          return;
+        }
+      
+        try {
+          console.log('[DEBUG] Gọi QR cho userId:', userId);
+          const { data } = await axios.get(`${BASE_URL}${userId}/get_2fa_qr_code`);
+          setTwoFactorQR(data.qrCode);
+          return data;
+        } catch (err) {
+          console.error('Lỗi khi lấy mã QR:', err.response?.data || err);
+          throw new Error(err.response?.data?.message || 'Lỗi khi lấy mã QR');
+        }
+    };
+      
+    const setup2FA = async (userId, otpToken, userAgent) => {
+        try {
+          const { data } = await axios.post(`${BASE_URL}${userId}/setup_2fa`, {
+            otpToken,
+            userAgent // ✅ đúng biến truyền vào
+          });
+          return data;
+        } catch (err) {
+          console.error('Lỗi khi thiết lập 2FA:', err.response?.data || err);
+          throw new Error(err.response?.data?.message || 'Thiết lập 2FA thất bại');
+        }
+      };
+    
+    
+    const verify2FA = async (otpToken) => {
+        if (!userId) return;
+    
+        try {
+            const { data } = await axios.put(`${BASE_URL}${userId}/verify_2fa`, { otpToken });
+            setIs2FAVerified(true);
+            return data.message;
+        } catch (err) {
+            console.error('Lỗi khi xác thực 2FA:', err.response?.data || err);
+            throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại');
+        }
+    };
+
 
     // --- USER ---
     const getUser = useCallback(async () => {
@@ -335,7 +384,9 @@ export const GlobalProvider = ({ children }) => {
                 expenses, getExpenses, addExpense, deleteExpense, totalExpenses,
                 totalBalance, transactionHistory, savingsProgress,
                 error, setError,
-                changePassword
+                changePassword,
+                get2FAQrCode,
+                setup2FA, verify2FA, twoFactorQR, is2FAVerified
             }}
         >
             {children}

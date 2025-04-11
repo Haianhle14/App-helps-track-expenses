@@ -25,7 +25,8 @@ const pickUser = (user) => {
     'role',
     'isActive',
     'createdAt',
-    'updatedAt'
+    'updatedAt',
+    'sessions'
   ])
 }
 

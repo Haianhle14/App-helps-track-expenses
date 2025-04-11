@@ -2,13 +2,12 @@ const mongoose = require('mongoose')
 const Joi = require('joi')
 const { EMAIL_RULE, EMAIL_RULE_MESSAGE } = require('../utils/validators')
 
-// Định nghĩa role
 const USER_ROLES = {
   CLIENT: 'client',
   ADMIN: 'admin'
 }
 
-// Tạo Schema bằng Mongoose
+// Tạo Schema người dùng
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -47,9 +46,24 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  require_2fa: {
+    type: Boolean,
+    default: false
+  },
   verifyToken: {
     type: String
   },
+  twoFactorSecretKey: {
+    type: String,
+    default: null
+  },
+  sessions: [
+    {
+      device_id: { type: String, required: true },
+      is_2fa_verified: { type: Boolean, default: false },
+      last_login: { type: Date, default: Date.now }
+    }
+  ],
   createdAt: {
     type: Date,
     default: Date.now
@@ -73,10 +87,19 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   username: Joi.string().required().trim().strict(),
   displayName: Joi.string().required().trim().strict(),
   avatar: Joi.string().default(null),
-  bio: { type: String, default: 'Chưa cập nhật' },
+  bio: Joi.string().default('Chưa cập nhật'),
   role: Joi.string().valid(USER_ROLES.CLIENT, USER_ROLES.ADMIN).default(USER_ROLES.CLIENT),
   isActive: Joi.boolean().default(false),
+  require_2fa: Joi.boolean().default(false),
   verifyToken: Joi.string(),
+  twoFactorSecretKey: Joi.string().allow(null),
+  sessions: Joi.array().items(
+    Joi.object({
+      device_id: Joi.string().required(),
+      is_2fa_verified: Joi.boolean().default(false),
+      last_login: Joi.date().timestamp('javascript').default(Date.now())
+    })
+  ).default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now()),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
@@ -87,7 +110,6 @@ const INVALID_UPDATE_FIELDS = ['_id', 'email', 'username', 'createdAt']
 const validateBeforeCreate = async (data) => {
   return await USER_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
-
 
 // Thao tác với Model
 const createNew = async (data) => {
@@ -100,7 +122,7 @@ const createNew = async (data) => {
   }
 }
 
-const findOneById = async (userId) => {
+const findById = async (userId) => {
   try {
     return await User.findById(userId)
   } catch (error) {
@@ -126,12 +148,11 @@ const update = async (userId, updateData) => {
 }
 
 module.exports = {
-  userModel: {
-    USER_ROLES,
-    USER_COLLECTION_SCHEMA,
-    createNew,
-    findOneById,
-    findOneByEmail,
-    update
-  }
+  User,
+  USER_ROLES,
+  USER_COLLECTION_SCHEMA,
+  createNew,
+  findById,
+  findOneByEmail,
+  update
 }

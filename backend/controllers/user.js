@@ -7,7 +7,7 @@ const createNew = async (req, res, next) => {
     res.status(StatusCodes.CREATED).json(createUser)
   }
   catch (error) { 
-    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ 
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: error.message || 'Server Error'
     }); 
   }
@@ -64,7 +64,7 @@ const bcrypt = require('bcryptjs')
 const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body
-    const userId = req.params.id // ✅ lấy từ URL
+    const userId = req.params.id
 
     const result = await userServices.changePassword(userId, oldPassword, newPassword)
     res.status(200).json(result)
@@ -72,6 +72,61 @@ const changePassword = async (req, res) => {
     res.status(error.statusCode || 500).json({ message: error.message })
   }
 }
+
+const get2FAQrCode = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { qrCode } = await userServices.get2FAQrCode(userId);
+    res.status(200).json({ qrCode });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ✅ Ghi nhận session sau khi quét QR code để bắt đầu 2FA
+const setup2FA = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { otpToken } = req.body;
+    if (!otpToken) {
+      return res.status(400).json({ message: 'Thiếu mã OTP' });
+    }
+
+    console.log('Received OTP token:', req.body.otpToken);
+    
+    const userAgent = req.headers['user-agent'];
+
+    const session = await userServices.setup2FA(userId, otpToken, userAgent);
+    res.status(200).json({ message: 'Thiết lập session 2FA thành công', session });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// ✅ Xác minh OTP từ ứng dụng Google Authenticator
+const verify2FA = async (req, res) => {
+  try {
+    const userId = req.params.id; // ✅ lấy đúng string
+    const { otpToken } = req.body;
+    const userAgent = req.headers['user-agent'];
+
+    console.log('[CONTROLLER] userId:', userId);
+    console.log('[SERVICE] userId:', userId, typeof userId)
+
+    if (!otpToken) {
+      return res.status(400).json({ message: 'Thiếu mã OTP.' });
+    }
+
+    const isValid = await userServices.verify2FA(userId, otpToken, userAgent); // ✅ truyền userId là string
+    if (!isValid) {
+      return res.status(400).json({ message: 'Mã 2FA không hợp lệ.' });
+    }
+
+    res.status(200).json({ message: 'Xác thực 2FA thành công.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 
 
@@ -81,5 +136,8 @@ module.exports = {
   login,
   getUserById,
   updateUser,
-  changePassword
-};
+  changePassword,
+  get2FAQrCode,
+  setup2FA,
+  verify2FA
+}

@@ -2,7 +2,8 @@ const { addExpense, getExpense, deleteExpense } = require('../controllers/expens
 const { addIncome, getIncomes, deleteIncome } = require('../controllers/income');
 const { addDebt, getDebts, deleteDebt } = require('../controllers/debt')
 const { addSaving, getSavings, updateSavingProgress, deleteSaving } = require('../controllers/savings')
-const { login, createNew, verifyAccount, getUserById, updateUser, changePassword} = require('../controllers/user')
+const { login, createNew, verifyAccount, getUserById, updateUser, changePassword,
+    get2FAQrCode, verify2FA, setup2FA } = require('../controllers/user')
 
 const router = require('express').Router();
 
@@ -34,5 +35,9 @@ router.put('/users/verify', verifyAccount)
 router.get('/users/:id', getUserById)
 router.put('/users/:userId/update-profile', updateUser)
 router.put('/users/:id/change-password', changePassword)
+
+router.get('/:id/get_2fa_qr_code', get2FAQrCode);
+router.put('/:id/verify_2fa', verify2FA);
+router.post('/:id/setup_2fa', setup2FA);
 
 module.exports = router

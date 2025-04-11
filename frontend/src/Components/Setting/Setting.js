@@ -16,24 +16,27 @@ function Setting() {
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
 
     const userId = localStorage.getItem('userId')
-
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/api/v1/users/${userId}`)
-                const user = res.data
-                setdisplayName(user.displayName || '')
-                setBio(user.bio || '')
+                const res = await axios.get(`http://localhost:5000/api/v1/users/${userId}`);
+                const user = res.data;
+                setdisplayName(user.displayName || '');
+                setBio(user.bio || '');
+    
+                // Kiểm tra xem có bất kỳ session nào đã xác minh 2FA
+                const verifiedSession = user.sessions?.some(session => session.is_2fa_verified === true);
+                setIs2FAEnabled(verifiedSession);
             } catch (error) {
-                console.error('Lỗi khi lấy thông tin user:', error)
+                console.error('Lỗi khi lấy thông tin user:', error);
             }
-        }
-
+        };
+    
         if (userId) {
-            fetchUser()
+            fetchUser();
         }
-    }, [userId])
-
+    }, [userId]);
+    
     const handleSaveUsername = (newUsername) => {
         setdisplayName(newUsername)
         setShowEditModal(false)
@@ -44,10 +47,20 @@ function Setting() {
         setShowEditBio(false)
     }
 
-    const handleSuccessSetup2FA = (updatedUser) => {
-        setIs2FAEnabled(updatedUser.is2FAEnabled);
+    const handleSuccessSetup2FA = async () => {
+        try {
+            const res = await axios.get(`http://localhost:5000/api/v1/users/${userId}`);
+            const user = res.data;
+            const verifiedSession = user.sessions?.some(session => session.is_2fa_verified === true);
+            setIs2FAEnabled(verifiedSession);
+        } catch (err) {
+            console.error('Lỗi khi reload user sau khi setup 2FA:', err);
+        }
         setShowSetup2FA(false);
     };
+    
+    
+    
 
     return (
         <SettingStyled>

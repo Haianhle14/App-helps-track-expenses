@@ -1,40 +1,57 @@
-import { useState, /* useEffect */} from 'react';
-// import { toast } from 'react-toastify';
+import { useState, useEffect} from 'react'
+import { toast } from 'react-toastify'
 import styled from 'styled-components'
-import SecurityIcon from '@mui/icons-material/Security';
-// import { get2FA_QRCodeAPI, setup2FA_API } from '~/apis';
+import SecurityIcon from '@mui/icons-material/Security'
+import { useGlobalContext } from '../../context/globalContext'
 
 function Setup2FA({ isOpen, toggleOpen, user, handleSuccessSetup2FA }) {
   const [otpToken, setConfirmOtpToken] = useState('');
-  const [error, /*setError*/] = useState(null);
-  const [qrCodeImageUrl, /*setQrCodeImageUrl*/] = useState(null);
+  const [error, setError] = useState(null);
+  const [qrCodeImageUrl, setQrCodeImageUrl] = useState(null);
+  const { get2FAQrCode, setup2FA } = useGlobalContext();
 
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     get2FA_QRCodeAPI(user._id).then(res => {
-  //       setQrCodeImageUrl(res.qrcode);
-  //     });
-  //   }
-  // }, [isOpen, user._id]);
-
+  useEffect(() => {
+    const uid = user?._id || localStorage.getItem('userId');
+    if (isOpen && uid) {
+      setError(null);
+      setConfirmOtpToken('');
+      get2FAQrCode(uid)
+        .then((res) => {
+          setQrCodeImageUrl(res.qrCode);
+        })
+        .catch(() => {
+          toast.error('Không thể tải mã QR. Vui lòng thử lại.');
+        });
+    }
+  }, [isOpen, user?._id, get2FAQrCode]);
+  
+  
   const handleCloseModal = () => {
     toggleOpen(!isOpen);
   };
 
-  // const handleConfirmSetup2FA = () => {
-  //   if (!otpToken) {
-  //     const errMsg = 'Vui lòng nhập mã OTP.';
-  //     setError(errMsg);
-  //     toast.error(errMsg);
-  //     return;
-  //   }
+  const handleConfirmSetup2FA = () => {
+    if (!otpToken) {
+      const errMsg = 'Vui lòng nhập mã OTP.';
+      setError(errMsg);
+      toast.error(errMsg);
+      return;
+    }
 
-  //   setup2FA_API(user._id, otpToken).then(updatedUser => {
-  //     toast.success('Xác minh 2 bước thiết lập thành công!');
-  //     handleSuccessSetup2FA(updatedUser);
-  //     setError(null);
-  //   });
-  // };
+    setup2FA(user._id, otpToken, navigator.userAgent)
+      .then(updatedUser => {
+        toast.success('Xác minh 2 bước thiết lập thành công!');
+        handleSuccessSetup2FA(updatedUser);
+        setError(null);
+        handleCloseModal();
+      })
+      .catch(err => {
+        const msg = err?.response?.data?.message || 'Xác minh thất bại.';
+        setError(msg);
+        toast.error(msg);
+      });
+  };
+  
 
   return (
     isOpen && (
@@ -67,7 +84,7 @@ function Setup2FA({ isOpen, toggleOpen, user, handleSuccessSetup2FA }) {
           {error && <ErrorMessage>{error}</ErrorMessage>}
 
           {/* Nút xác nhận */}
-          <button>Xác nhận</button>
+          <button onClick={handleConfirmSetup2FA}>Xác nhận</button>
         </ModalContainer>
       </ModalOverlay>
     )
