@@ -21,19 +21,19 @@ export const menuItems = [
     },
     {
         id: 4,
-        title: "Vay, Nợ",
+        title: "Vay Và Cho Vay",
         icon: handshake,
         link: "/dashboard",
     },
     {
         id: 5,
-        title: "Mục tiêu tiết kiệm",
+        title: "Mục Tiêu Tiết Tiệm",
         icon: clipboard,
         link: "/dashboard",
     },
     {
         id: 6,
-        title: "Cài đặt",
+        title: "Cài Đặt",
         icon: settings,
         link: "/setting"
     }

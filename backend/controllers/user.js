@@ -22,14 +22,17 @@ const verifyAccount = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const result = await userServices.login(req.body)
-    res.status(StatusCodes.OK).json(result)
+    const userAgent = req.headers['user-agent'];
+    const result = await userServices.login(req.body, userAgent);
+
+    res.status(StatusCodes.OK).json(result);
   } catch (error) {
     res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: error.message || 'Server Error'
-    })
+    });
   }
-}
+};
+
 
 
 const getUserById = async (req, res, next) => {

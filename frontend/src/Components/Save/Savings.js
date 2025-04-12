@@ -28,7 +28,7 @@ function Saving() {
 
     return (
         <SavingStyle>
-            <h2>Mục tiêu Tiết kiệm</h2>
+            <h2>Mục Tiêu Tiết kiệm</h2>
 
             {/* Form thêm mục tiêu */}
             <SavingGoalForm onAdd={addSaving} />

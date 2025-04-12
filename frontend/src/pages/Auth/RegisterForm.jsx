@@ -24,18 +24,16 @@ function RegisterForm() {
 
   const submitRegister = async (data) => {
     const { email, password } = data
-    toast.promise(
-      registerUserAPI({ email, password }),
-      {
-        pending: 'Đang xử lý đăng ký...',
-        success: 'Đăng ký thành công! Vui lòng kiểm tra email để xác minh.',
-        error: 'Đăng ký thất bại. Vui lòng thử lại!'
-      }
-    ).then(user => {
+    try {
+      toast.info('⏳ Đang xử lý đăng ký...', { autoClose: 2000 })
+      const user = await registerUserAPI({ email, password })
+      toast.success('✅ Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', { autoClose: 5000 })
       navigate(`/login?registeredEmail=${user.email}`)
-    }).catch(error => {
+    } catch (error) {
       console.error(error)
-    })
+      const errMsg = error?.response?.data?.message || '❌ Đăng ký thất bại. Vui lòng thử lại!'
+      toast.error(errMsg, { autoClose: 5000 })
+    }
   }
 
   return (
@@ -61,6 +59,7 @@ function RegisterForm() {
                 type="text"
                 variant="outlined"
                 error={!!errors['email']}
+                helperText={errors['email']?.message}
                 {...register('email', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
@@ -78,6 +77,7 @@ function RegisterForm() {
                 type="password"
                 variant="outlined"
                 error={!!errors['password']}
+                helperText={errors['password']?.message}
                 {...register('password', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
@@ -95,6 +95,7 @@ function RegisterForm() {
                 type="password"
                 variant="outlined"
                 error={!!errors['password_confirmation']}
+                helperText={errors['password_confirmation']?.message}
                 {...register('password_confirmation', {
                   validate: (value) => {
                     if (value === watch('password')) return true

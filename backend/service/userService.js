@@ -46,7 +46,8 @@ const createNew = async (reqBody) => {
 
     // 5. Gửi email xác thực
   const verificationLink = `http://localhost:3000/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
-    const customSubject = 'Xác thực tài khoản của bạn'
+  console.log('Verification link sent:', verificationLink); 
+  const customSubject = 'Xác thực tài khoản của bạn'
   const htmlContent = `
     <h3>Xác thực tài khoản</h3>
       <p>Chào mừng bạn đến với ứng dụng của chúng tôi</p>
@@ -64,70 +65,98 @@ const createNew = async (reqBody) => {
 
 /**
  * Xác thực tài khoản qua email
- */
-const verifyAccount = async (reqBody) => {
+ */const verifyAccount = async (reqBody) => {
   try {
-    const existUser = await userModel.findOneByEmail(reqBody.email)
+    console.log("Email từ yêu cầu xác thực:", reqBody.email);
+    console.log("Token từ yêu cầu xác thực:", reqBody.token);
 
-    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!')
-    if (existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản đã được xác thực!')
-    if (existUser.verifyToken !== reqBody.token) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Token không đúng!')
+    const existUser = await userModel.findOneByEmail(reqBody.email);
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!');
 
-    const updateData = {
-      isActive: true,
-      verifyToken: null,
-      updatedAt: new Date()
+    if (existUser.isActive) {
+      console.log("Tài khoản đã xác thực, bỏ qua cập nhật.");
+      return existUser;
     }
 
-    const updatedUser = await userModel.update(existUser._id, updateData)
+    if (existUser.verifyToken !== reqBody.token) {
+      console.log("Token không khớp, kiểm tra lại token:", reqBody.token, "với token trong DB:", existUser.verifyToken);
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Token không đúng!');
+    }
 
-    return pickUser(updatedUser)
+    // Cập nhật trạng thái người dùng
+    const updateData = {
+      isActive: true,  // Cập nhật tài khoản thành công (tức là đã xác minh)
+      verifyToken: null,  // Xóa token sau khi xác minh
+      updatedAt: new Date()
+    };
+
+    await userModel.update(existUser._id, updateData);
+    const updatedUser = await userModel.findById(existUser._id);
+
+    console.log("Thông tin người dùng sau khi xác thực:", updatedUser); // Kiểm tra trạng thái người dùng
+    return updatedUser;
+
   } catch (error) {
-    throw error
+    console.error("Lỗi xác thực tài khoản:", error);
+    throw error;
   }
 }
+
+
+
 
 /**
  * Đăng nhập tài khoản
  */
 const login = async (reqBody) => {
   try {
-    const existUser = await userModel.findOneByEmail(reqBody.email)
-  if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!')
-
-    const isPasswordCorrect = bcryptjs.compareSync(reqBody.password, existUser.password)
-    if (!isPasswordCorrect) {
-      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Email hoặc mật khẩu không đúng!')
+    const existUser = await userModel.findOneByEmail(reqBody.email);
+    if (!existUser) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!');
     }
 
-  const userInfo = {
-    _id: existUser._id,
-    email: existUser.email,
-    role: existUser.role
-  }
+    // Kiểm tra mật khẩu
+    const isPasswordCorrect = bcryptjs.compareSync(reqBody.password, existUser.password);
+    if (!isPasswordCorrect) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Email hoặc mật khẩu không đúng!');
+    }
 
-  const accessToken = await JwtProvider.generateToken(
-    userInfo,
-    process.env.ACCESS_TOKEN_SECRET_SIGNATURE,
-    process.env.ACCESS_TOKEN_LIFE
-  )
+    // Kiểm tra trạng thái xác thực tài khoản (isActive)
+    if (!existUser.isActive) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Tài khoản chưa được xác thực! Vui lòng kiểm tra email để xác nhận tài khoản.');
+    }
 
-  const refreshToken = await JwtProvider.generateToken(
-    userInfo,
-    process.env.REFRESH_TOKEN_SECRET_SIGNATURE,
-    process.env.REFRESH_TOKEN_LIFE
-  )
+    const userInfo = {
+      _id: existUser._id,
+      email: existUser.email,
+      role: existUser.role
+    };
 
-  return {
-    accessToken,
-    refreshToken,
+    const accessToken = await JwtProvider.generateToken(
+      userInfo,
+      process.env.ACCESS_TOKEN_SECRET_SIGNATURE,
+      process.env.ACCESS_TOKEN_LIFE
+    );
+
+    const refreshToken = await JwtProvider.generateToken(
+      userInfo,
+      process.env.REFRESH_TOKEN_SECRET_SIGNATURE,
+      process.env.REFRESH_TOKEN_LIFE
+    );
+
+    return {
+      accessToken,
+      refreshToken,
       isActive: existUser.isActive,
-    ...pickUser(existUser)
-  }
+      ...pickUser(existUser)  // Giả sử pickUser là một hàm lọc thông tin người dùng cần thiết
+    };
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
+
+
+
 
 
 /**

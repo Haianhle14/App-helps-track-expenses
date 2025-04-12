@@ -58,18 +58,22 @@ export const GlobalProvider = ({ children }) => {
       };
     
     
-    const verify2FA = async (otpToken) => {
-        if (!userId) return;
-    
+      const verify2FA = async (otpToken) => {
+        const userId = localStorage.getItem('userId') // Lấy từ localStorage
+      
+        if (!userId) throw new Error('Không tìm thấy userId để xác thực 2FA')
+      
         try {
-            const { data } = await axios.put(`${BASE_URL}${userId}/verify_2fa`, { otpToken });
-            setIs2FAVerified(true);
-            return data.message;
+          const { data } = await axios.put(`${BASE_URL}${userId}/verify_2fa`, { otpToken })
+          
+          setIs2FAVerified(true)
+          return data // 👈 trả về thông tin user mới nếu có
         } catch (err) {
-            console.error('Lỗi khi xác thực 2FA:', err.response?.data || err);
-            throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại');
+          console.error('Lỗi khi xác thực 2FA:', err.response?.data || err)
+          throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại')
         }
-    };
+      }
+      
 
 
     // --- USER ---
@@ -113,9 +117,6 @@ export const GlobalProvider = ({ children }) => {
         }
     };
     
-    
-
-    
     const changePassword = async (oldPassword, newPassword) => {
         if (!userId) throw new Error('Không tìm thấy user ID');
         try {
@@ -128,6 +129,19 @@ export const GlobalProvider = ({ children }) => {
             throw new Error(err.response?.data?.message || 'Lỗi khi đổi mật khẩu');
         }
     };
+
+    const verifyUserAPI = async ({ email, token }) => {
+        try {
+          const response = await axios.put(`${BASE_URL}users/verify`, { email, token }) // ✅ Đúng route rồi nhé
+          setUser(response.data.user)
+          return response.data
+        } catch (error) {
+          throw new Error('Xác minh tài khoản thất bại')
+        }
+      }
+      
+      
+    
       
     // --- SAVINGS ---
     const getSavings = useCallback(async () => {
@@ -317,7 +331,7 @@ export const GlobalProvider = ({ children }) => {
             ...expenses.map(e => ({ ...e, type: 'Chi tiêu' })),
             ...debts.map(d => ({ 
                 ...d, 
-                type: d.type === 'lend' ? 'Cho vay' : d.type === 'borrow' ? 'Vay' : 'Vay, Nợ',
+                type: d.type === 'lend' ? 'Cho vay' : d.type === 'borrow' ? 'Vay' : 'Vay, cho vay',
                 title: d.type === 'lend' ? 'Cho vay' : d.type === 'borrow' ? 'Vay' : d.type
             })),
             ...savings.map(s => ({ ...s, type: 'Mục tiêu', title: s.goal, createdAt: s.updatedAt || s.createdAt })),
@@ -334,7 +348,7 @@ export const GlobalProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-            const { data } = await axios.post(`${BASE_URL}auth/login`, credentials)
+            const { data } = await axios.post(`${BASE_URL}users/login`, credentials)
             localStorage.setItem('token', data.token)
             localStorage.setItem('userId', data.userId)
             setToken(data.token) // Cập nhật token vào state
@@ -377,7 +391,7 @@ export const GlobalProvider = ({ children }) => {
     return (
         <GlobalContext.Provider
             value={{
-                user, getUser, updateUser, login, logout,
+                user, getUser, updateUser, verifyUserAPI, login, logout,
                 savings, getSavings, addSaving, deleteSaving, updateSavingProgress,
                 debts, getDebts, addDebt, deleteDebt, totalDebts,
                 incomes, getIncomes, addIncome, deleteIncome, totalIncome,
@@ -386,7 +400,7 @@ export const GlobalProvider = ({ children }) => {
                 error, setError,
                 changePassword,
                 get2FAQrCode,
-                setup2FA, verify2FA, twoFactorQR, is2FAVerified
+                setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified
             }}
         >
             {children}

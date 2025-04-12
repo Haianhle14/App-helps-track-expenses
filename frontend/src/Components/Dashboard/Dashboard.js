@@ -6,10 +6,13 @@ import { InnerLayout } from '../../styles/Layouts';
 import Chart from '../Chart/Chart';
 import PieChart from '../Chart/PieChart';
 import SavingsPieChart from '../Chart/SavingsPieChart';
+import Require2FA from '../../pages/Auth/require-2fa'; // ✅ Thêm dòng này
 
 function Dashboard() {
     const {
-        totalExpenses, incomes, expenses, totalIncome, totalBalance, debts, getIncomes, getExpenses, getDebts, savingsProgress
+        user, is2FAVerified, setIs2FAVerified, // ✅ Thêm 3 biến này từ context
+        totalExpenses, incomes, expenses, totalIncome, totalBalance, debts,
+        getIncomes, getExpenses, getDebts, savingsProgress
     } = useGlobalContext();
 
     const [showExpensesList, setShowExpensesList] = useState(false);
@@ -20,11 +23,22 @@ function Dashboard() {
         getDebts();
     }, [getIncomes, getExpenses, getDebts]);
 
+    // ✅ Nếu cần xác thực 2FA, hiển thị giao diện nhập mã và return luôn
+    if (user?.require_2fa && !is2FAVerified) {
+        return (
+            <Require2FA
+                user={user}
+                handleSuccessVerify2FA={(updatedUser) => {
+                    setIs2FAVerified(true);
+                    // Nếu cần cập nhật user trong context, bạn có thể set lại ở đây
+                }}
+            />
+        );
+    }
+
     const totalLoaned = debts.filter(debt => debt.type === 'lend').reduce((acc, curr) => acc + curr.amount, 0);
     const totalBorrowed = debts.filter(debt => debt.type === 'borrow').reduce((acc, curr) => acc + curr.amount, 0);
     const { totalCurrent, totalTarget } = savingsProgress();
-
-    // Tính tổng tiền đã cập nhật vào các mục tiêu tiết kiệm
     const totalSavingsProgress = totalCurrent;
 
     const toggleExpensesList = () => {
@@ -51,13 +65,11 @@ function Dashboard() {
                                         <div className="expenses-list">
                                             <h3>Danh sách chi tiêu</h3>
                                             <ul>
-                                                {/* Hiển thị các khoản chi tiêu */}
                                                 {expenses.map((expense, index) => (
                                                     <li key={index}>
                                                         {expense.title}: {expense.amount}đ
                                                     </li>
                                                 ))}
-                                                {/* Hiển thị tổng tiền tiết kiệm đã cập nhật */}
                                                 <li>
                                                     <strong>Tiền tiết kiệm:</strong> {totalSavingsProgress}đ
                                                 </li>
@@ -107,24 +119,20 @@ const DashboardStyled = styled.div`
 
     .dashboard-content {
         overflow-y: auto;
-        height: calc(100vh - 80px); // Trừ đi chiều cao của header nếu có
+        height: calc(100vh - 80px);
         padding-right: 5px;
 
-        /* Custom scrollbar */
         &::-webkit-scrollbar {
             width: 8px;
         }
-
         &::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 10px;
         }
-
         &::-webkit-scrollbar-thumb {
             background: #888;
             border-radius: 10px;
         }
-
         &::-webkit-scrollbar-thumb:hover {
             background: #555;
         }

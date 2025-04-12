@@ -15,7 +15,7 @@ function Expenses() {
     return (
         <ExpenseStyled>
             <InnerLayout>
-                <h1>Chi tiêu</h1>
+                <h1>Quản Lý Chi Tiêu</h1>
                 <h2 className="total-income">Tổng chi tiêu: <span>{totalExpenses()}đ</span></h2>
                 <div className="income-content">
                     <div className="form-container">

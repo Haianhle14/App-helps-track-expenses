@@ -16,7 +16,7 @@ function Income() {
     return (
         <IncomeStyled>
             <InnerLayout>
-                <h1>Thu Nhập</h1>
+                <h1>Quản Lý Thu Nhập</h1>
                 <h2 className="total-income">Tổng thu nhập: <span>{totalIncome()}đ</span></h2>
                 <div className="income-content">
                     <div className="form-container">

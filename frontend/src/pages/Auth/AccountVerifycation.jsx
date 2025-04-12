@@ -1,37 +1,46 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Navigate } from 'react-router-dom'
-import PageLoadingSpinner from '../../components/Loading/PageLoadingSpinner'
-import { verifyUserAPI } from '../../apis'
+import { useSearchParams, Navigate } from 'react-router-dom'
+import PageLoadingSpinner from '../../Components/Loading/PageLoadingSpinner'
+import { useGlobalContext } from '../../context/globalContext'
 
-function AccountVerifycation() {
-  let [searchParams] = useSearchParams()
+function AccountVerification() {
+  const [searchParams] = useSearchParams()
+  const email = searchParams.get('email')
+  const token = searchParams.get('token')
+  const { verifyUserAPI, user } = useGlobalContext()
+  const [status, setStatus] = useState({
+    loading: true,
+    error: false
+  })
 
-  const { email, token } = Object.fromEntries([...searchParams])
-
-  const [verified, setVerified] = useState(false)
-
-  // Gọi API để verify tài khoản
   useEffect(() => {
-    if (email && token) {
-      verifyUserAPI({ email, token })
-        .then(() => {
-          setVerified(true)
-        })
-        .catch(() => {
-          setVerified(false)
-        })
+    if (!email || !token) {
+      setStatus({ loading: false, error: true })
+      return
     }
-  }, [email, token])
-  if (!email || !token) {
-    return <Navigate to="/404"></Navigate>
+
+    verifyUserAPI({ email, token })
+      .then(() => setStatus({ loading: false, error: false }))
+      .catch(() => setStatus({ loading: false, error: true }))
+  }, [email, token, verifyUserAPI])
+
+  // Nếu email hoặc token không hợp lệ, hoặc có lỗi, chuyển hướng đến trang 404
+  if (!email || !token || status.error) {
+    return <Navigate to="/404" />
   }
 
-  if (!verified) {
-    return <PageLoadingSpinner caption="Verifying your account..."/>
+  // Nếu đang trong quá trình xác minh, hiển thị loading spinner
+  if (status.loading) {
+    return <PageLoadingSpinner caption="Đang xác minh tài khoản..." />
   }
 
-  return <Navigate to={`/login?verifiedEmail=${email}`} />
+  // Nếu người dùng đã xác minh và có thông tin user, chuyển hướng tới dashboard
+  if (user?.isActive) {
+    return <Navigate to="/dashboard" /> // Điều hướng đến trang Dashboard sau khi xác nhận tài khoản
+  }
+
+  // Nếu người dùng không xác minh, chuyển hướng về trang login
+  return <Navigate to={`/login?verifiedEmail=${encodeURIComponent(email)}`} />
 }
 
-export default AccountVerifycation
+export default AccountVerification

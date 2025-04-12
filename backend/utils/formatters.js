@@ -24,6 +24,7 @@ const pickUser = (user) => {
     'bio',
     'role',
     'isActive',
+    'require_2fa',
     'createdAt',
     'updatedAt',
     'sessions'

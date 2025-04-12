@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -20,41 +21,49 @@ import {
 
 function LoginForm({ onLoginSuccess }) {
   const { register, handleSubmit, formState: { errors } } = useForm()
-  let [searchParams] = useSearchParams()
+  let [searchParams, setSearchParams] = useSearchParams()
   const registeredEmail = searchParams.get('registeredEmail')
   const verifiedEmail = searchParams.get('verifiedEmail')
 
   // Hiển thị thông báo nếu email đã được xác minh
-  if (verifiedEmail) {
-    toast.success(`Email ${verifiedEmail} đã được xác minh. Bạn có thể đăng nhập!`, { autoClose: 5000 })
-  }
+  useEffect(() => {
+    if (verifiedEmail) {
+      toast.success(`Email ${verifiedEmail} đã được xác minh. Bạn có thể đăng nhập!`, { autoClose: 5000 });
+      searchParams.delete('verifiedEmail');
+      setSearchParams(searchParams); // cập nhật URL để toast không hiện lại khi refresh
+    }
 
-  // Hiển thị thông báo nếu email cần xác minh trước khi đăng nhập
-  if (registeredEmail) {
-    toast.info(`Một email xác minh đã được gửi đến ${registeredEmail}. Kiểm tra và xác minh trước khi đăng nhập.`, { autoClose: 5000 })
-  }
+    if (registeredEmail) {
+      toast.info(`Một email xác minh đã được gửi đến ${registeredEmail}.`, { autoClose: 5000 });
+      searchParams.delete('registeredEmail');
+      setSearchParams(searchParams); // tương tự xóa param sau khi hiển thị
+    }
+  }, [verifiedEmail, registeredEmail, searchParams, setSearchParams]);
 
   // Hàm submit có gọi API login và lưu vào localStorage
+
   const submitLogIn = async (data) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/users/login', data)
-      const { accessToken, _id, isActive } = response.data
+      const response = await axios.post('http://localhost:5000/api/v1/users/login', data);
+      const { accessToken, _id, isActive, require_2fa } = response.data;
   
-      // Lưu vào localStorage
-      localStorage.setItem('userId', _id)
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('isActive', isActive)
+      localStorage.setItem('userId', _id);
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('isActive', isActive);
+      localStorage.setItem('require2FA', require_2fa); // Lưu trạng thái 2FA
   
-      toast.success('Đăng nhập thành công!')
-      
-      // Gọi callback để chuyển sang dashboard
-      onLoginSuccess()
+      toast.success('Đăng nhập thành công!');
+  
+      // Kiểm tra nếu 2FA yêu cầu, gọi hàm xác thực 2FA
+      onLoginSuccess({ require_2fa, user: response.data });
     } catch (error) {
-      toast.error('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!')
-      console.error(error)
+      toast.error('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!');
+      console.error(error);
     }
   }
-    
+  
+  
+
   return (
     <form onSubmit={handleSubmit(submitLogIn)}>
       <Zoom in={true} style={{ transitionDelay: '200ms' }}>
@@ -71,6 +80,7 @@ function LoginForm({ onLoginSuccess }) {
                 label="Enter Email..."
                 type="text"
                 variant="outlined"
+                helperText={errors.email?.message}
                 error={!!errors['email']}
                 {...register('email', {
                   required: FIELD_REQUIRED_MESSAGE,
@@ -88,6 +98,7 @@ function LoginForm({ onLoginSuccess }) {
                 type="password"
                 autoComplete="current-password"
                 variant="outlined"
+                helperText={errors.password?.message}
                 error={!!errors['password']}
                 {...register('password', {
                   required: FIELD_REQUIRED_MESSAGE,
