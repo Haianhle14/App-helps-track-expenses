@@ -94,8 +94,6 @@ const setup2FA = async (req, res) => {
     if (!otpToken) {
       return res.status(400).json({ message: 'Thiếu mã OTP' });
     }
-
-    console.log('Received OTP token:', req.body.otpToken);
     
     const userAgent = req.headers['user-agent'];
 
@@ -112,9 +110,6 @@ const verify2FA = async (req, res) => {
     const userId = req.params.id; // ✅ lấy đúng string
     const { otpToken } = req.body;
     const userAgent = req.headers['user-agent'];
-
-    console.log('[CONTROLLER] userId:', userId);
-    console.log('[SERVICE] userId:', userId, typeof userId)
 
     if (!otpToken) {
       return res.status(400).json({ message: 'Thiếu mã OTP.' });

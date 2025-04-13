@@ -23,7 +23,7 @@ function Require2FA({ user, handleSuccessVerify2FA }) {
     }
 
     try {
-      const updatedUser = await verify2FA(otpToken);  // Gọi API xác thực 2FA
+      const updatedUser = await verify2FA(user._id, otpToken);  // Gọi API xác thực 2FA
       handleSuccessVerify2FA(updatedUser);  // Xử lý thành công
       toast.success('Xác thực 2FA thành công!');
       setError(null);
