@@ -8,7 +8,7 @@ function Setup2FA({ isOpen, toggleOpen, user, handleSuccessSetup2FA }) {
   const [otpToken, setConfirmOtpToken] = useState('');
   const [error, setError] = useState(null);
   const [qrCodeImageUrl, setQrCodeImageUrl] = useState(null);
-  const { get2FAQrCode, setup2FA } = useGlobalContext();
+  const { get2FAQrCode, setup2FA, verify2FA } = useGlobalContext();
 
   useEffect(() => {
     const uid = user?._id || localStorage.getItem('userId');
@@ -26,31 +26,43 @@ function Setup2FA({ isOpen, toggleOpen, user, handleSuccessSetup2FA }) {
   }, [isOpen, user?._id, get2FAQrCode]);
   
   
+  
   const handleCloseModal = () => {
     toggleOpen(!isOpen);
   };
 
   const handleConfirmSetup2FA = () => {
     if (!otpToken) {
-      const errMsg = 'Vui lòng nhập mã OTP.';
-      setError(errMsg);
-      toast.error(errMsg);
-      return;
+        const errMsg = 'Vui lòng nhập mã OTP.';
+        setError(errMsg);
+        toast.error(errMsg);
+        return;
     }
 
     setup2FA(user._id, otpToken, navigator.userAgent)
-      .then(updatedUser => {
-        toast.success('Xác minh 2 bước thiết lập thành công!');
-        handleSuccessSetup2FA(updatedUser);
-        setError(null);
-        handleCloseModal();
-      })
-      .catch(err => {
-        const msg = err?.response?.data?.message || 'Xác minh thất bại.';
-        setError(msg);
-        toast.error(msg);
-      });
-  };
+        .then((updatedUser) => {
+            // Sau khi setup thành công, gọi xác minh OTP
+            verify2FA(user._id, otpToken)  // Truyền userId và otpToken
+                .then(() => {
+                    toast.success('Xác minh 2 bước thiết lập thành công!');
+                    handleSuccessSetup2FA(updatedUser);
+                    setError(null);
+                    handleCloseModal();
+                })
+                .catch((err) => {
+                    const msg = err?.response?.data?.message || 'Xác minh OTP thất bại.';
+                    setError(msg);
+                    toast.error(msg);
+                });
+        })
+        .catch((err) => {
+            const msg = err?.response?.data?.message || 'Xác minh thất bại.';
+            setError(msg);
+            toast.error(msg);
+        });
+};
+
+  
   
 
   return (

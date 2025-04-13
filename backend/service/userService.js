@@ -227,7 +227,6 @@ const get2FAQrCode = async (userId) => {
       const secret = otplib.authenticator.generateSecret();
       user.twoFactorSecretKey = secret;
       await user.save();
-      console.log('[DEBUG] 🔐 Secret 2FA mới được tạo:', secret);
 
       // ⚠️ Lấy lại user từ DB sau khi lưu để chắc chắn secret đã cập nhật
       const freshUser = await userModel.findById(userId);
@@ -241,7 +240,6 @@ const get2FAQrCode = async (userId) => {
 
       return { qrCode };
     } else {
-      console.log('[DEBUG] ✅ Secret 2FA đã tồn tại:', user.twoFactorSecretKey);
 
       const otpauth = otplib.authenticator.keyuri(
         user.email,
@@ -290,32 +288,61 @@ const setup2FA = async (userId, otpToken, userAgent) => {
   return session;
 };
 
+
 const verify2FA = async (userId, token, userAgent) => {
   try {
+    // Lấy thông tin người dùng
     const user = await userModel.findById(userId);
-    if (!user) throw new Error('Không tìm thấy người dùng');
-    if (!user.twoFactorSecretKey) throw new Error('Không có secret 2FA');
+    if (!user) {
+      console.log('[ERROR] Không tìm thấy người dùng');
+      throw new Error('Không tìm thấy người dùng');
+    }
 
+    // Kiểm tra secret 2FA
+    if (!user.twoFactorSecretKey) {
+      console.log('[ERROR] Người dùng chưa có secret 2FA');
+      throw new Error('Không có secret 2FA');
+    }
+
+    // Kiểm tra mã OTP
     const isValid = otplib.authenticator.verify({ token, secret: user.twoFactorSecretKey });
-    if (!isValid) return false;
 
+    if (!isValid) {
+      console.log('[ERROR] Mã OTP không hợp lệ');
+      return false;
+    }
+
+    // Hash user agent (thiết bị)
     const hashedUA = hashDeviceId(userAgent);
+
+    // Kiểm tra session
+    if (!user.sessions || user.sessions.length === 0) {
+      console.warn('[⚠️] Không có session nào');
+      return false;
+    }
 
     const sessionIndex = user.sessions.findIndex((s) => s.device_id === hashedUA);
     if (sessionIndex !== -1) {
+
       user.sessions[sessionIndex].is_2fa_verified = true;
       user.sessions[sessionIndex].last_login = new Date();
+      user.require_2fa = true;  // Đảm bảo require_2fa được cập nhật
+
     } else {
       console.warn('[⚠️] Không tìm thấy session tương ứng');
     }
 
-    user.markModified('sessions');
+    // Lưu người dùng sau khi cập nhật
     await user.save();
     return true;
   } catch (error) {
+    console.error('[ERROR] Lỗi xác thực 2FA:', error.message);
     throw new Error('Lỗi xác thực 2FA: ' + error.message);
   }
 };
+
+
+
 
 
 

@@ -58,22 +58,21 @@ export const GlobalProvider = ({ children }) => {
       };
     
     
-      const verify2FA = async (otpToken) => {
-        const userId = localStorage.getItem('userId') // Lấy từ localStorage
-      
-        if (!userId) throw new Error('Không tìm thấy userId để xác thực 2FA')
-      
+      const verify2FA = async (userId, otpToken) => {
+        if (!userId || !otpToken) return;
+    
         try {
-          const { data } = await axios.put(`${BASE_URL}${userId}/verify_2fa`, { otpToken })
-          
-          setIs2FAVerified(true)
-          return data // 👈 trả về thông tin user mới nếu có
+            // Gọi API backend để xác minh mã OTP
+            const { data } = await axios.put(`${BASE_URL}${userId}/verify_2fa`, { userId, otpToken });
+    
+            // Nếu xác minh thành công
+            setIs2FAVerified(true);
+            return data.message;  // Hoặc thông báo thành công
         } catch (err) {
-          console.error('Lỗi khi xác thực 2FA:', err.response?.data || err)
-          throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại')
+            console.error('Lỗi khi xác thực 2FA:', err.response?.data || err);
+            throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại');
         }
-      }
-      
+    };
 
 
     // --- USER ---
