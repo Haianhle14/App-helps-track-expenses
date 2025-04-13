@@ -6,11 +6,11 @@ import { InnerLayout } from '../../styles/Layouts';
 import Chart from '../Chart/Chart';
 import PieChart from '../Chart/PieChart';
 import SavingsPieChart from '../Chart/SavingsPieChart';
-import Require2FA from '../../pages/Auth/require-2fa'; // ✅ Thêm dòng này
+import Require2FA from '../../pages/Auth/require-2fa'
 
 function Dashboard() {
     const {
-        user, is2FAVerified, setIs2FAVerified, // ✅ Thêm 3 biến này từ context
+        user, is2FAVerified, setIs2FAVerified,
         totalExpenses, incomes, expenses, totalIncome, totalBalance, debts,
         getIncomes, getExpenses, getDebts, savingsProgress
     } = useGlobalContext();
@@ -23,14 +23,12 @@ function Dashboard() {
         getDebts();
     }, [getIncomes, getExpenses, getDebts]);
 
-    // ✅ Nếu cần xác thực 2FA, hiển thị giao diện nhập mã và return luôn
     if (user?.require_2fa && !is2FAVerified) {
         return (
             <Require2FA
                 user={user}
                 handleSuccessVerify2FA={(updatedUser) => {
                     setIs2FAVerified(true);
-                    // Nếu cần cập nhật user trong context, bạn có thể set lại ở đây
                 }}
             />
         );

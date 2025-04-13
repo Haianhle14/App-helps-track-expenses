@@ -18,11 +18,9 @@ const sendEmail = async (recipientEmail, customSubject, htmlContent) => {
   sendSmtpEmail.subject = customSubject
   sendSmtpEmail.htmlContent = htmlContent
 
-  // Gửi email
   return await apiInstance.sendTransacEmail(sendSmtpEmail)
 }
 
-// Export kiểu CommonJS
 module.exports = {
   BrevoProvider: {
     sendEmail

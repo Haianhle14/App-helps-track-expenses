@@ -42,7 +42,7 @@ function Setup2FA({ isOpen, toggleOpen, user, handleSuccessSetup2FA }) {
     setup2FA(user._id, otpToken, navigator.userAgent)
         .then((updatedUser) => {
             // Sau khi setup thành công, gọi xác minh OTP
-            verify2FA(user._id, otpToken)  // Truyền userId và otpToken
+            verify2FA(user._id, otpToken)
                 .then(() => {
                     toast.success('Xác minh 2 bước thiết lập thành công!');
                     handleSuccessSetup2FA(updatedUser);
@@ -84,8 +84,7 @@ function Setup2FA({ isOpen, toggleOpen, user, handleSuccessSetup2FA }) {
               <img src={qrCodeImageUrl} alt="2FA QR Code" />
             )}
           </QRCodeWrapper>
-
-          {/* Nhập OTP */}
+          
           <label htmlFor="otp">Nhập mã OTP</label>
           <input
             id="otp"
@@ -94,8 +93,6 @@ function Setup2FA({ isOpen, toggleOpen, user, handleSuccessSetup2FA }) {
             onChange={(e) => setConfirmOtpToken(e.target.value)}
           />
           {error && <ErrorMessage>{error}</ErrorMessage>}
-
-          {/* Nút xác nhận */}
           <button onClick={handleConfirmSetup2FA}>Xác nhận</button>
         </ModalContainer>
       </ModalOverlay>
@@ -103,7 +100,6 @@ function Setup2FA({ isOpen, toggleOpen, user, handleSuccessSetup2FA }) {
   );
 };
 
-// Styled Components
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
