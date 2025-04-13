@@ -55,24 +55,49 @@ export const GlobalProvider = ({ children }) => {
           console.error('Lỗi khi thiết lập 2FA:', err.response?.data || err);
           throw new Error(err.response?.data?.message || 'Thiết lập 2FA thất bại');
         }
-      };
+    };
     
     
-      const verify2FA = async (userId, otpToken) => {
+    // Kiểm tra trạng thái 2FA và xác thực khi người dùng đã login
+    const verify2FA = async (userId, otpToken) => {
         if (!userId || !otpToken) return;
     
         try {
-            // Gọi API backend để xác minh mã OTP
-            const { data } = await axios.put(`${BASE_URL}${userId}/verify_2fa`, { userId, otpToken });
+        const { data } = await axios.put(`${BASE_URL}${userId}/verify_2fa`, { userId, otpToken });
     
-            // Nếu xác minh thành công
-            setIs2FAVerified(true);
-            return data.message;  // Hoặc thông báo thành công
+        // Lưu token mới vào localStorage
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('refreshToken', data.refreshToken);
+    
+        // Cập nhật context user
+        setUser(data);
+    
+        // Lưu trạng thái 2FA đã xác minh
+        localStorage.setItem('is2FAVerified', true); // Lưu trạng thái vào localStorage
+    
+        setIs2FAVerified(true);
+        return data;
         } catch (err) {
-            console.error('Lỗi khi xác thực 2FA:', err.response?.data || err);
-            throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại');
+        console.error('Lỗi khi xác thực 2FA:', err.response?.data || err);
+        throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại');
         }
     };
+    
+    // Kiểm tra trạng thái 2FA khi refresh trang
+    const check2FAStatus = () => {
+        const is2FAVerified = localStorage.getItem('is2FAVerified');
+        if (is2FAVerified === 'true') {
+        setIs2FAVerified(true);
+        } else {
+        setIs2FAVerified(false);
+        }
+    };
+    
+    // Gọi check2FAStatus() sau khi trang load
+    useEffect(() => {
+        check2FAStatus();
+    }, []);
+  
 
 
     // --- USER ---

@@ -287,58 +287,94 @@ const setup2FA = async (userId, otpToken, userAgent) => {
 
   return session;
 };
-
-
 const verify2FA = async (userId, token, userAgent) => {
   try {
-    // Lấy thông tin người dùng
     const user = await userModel.findById(userId);
     if (!user) {
-      console.log('[ERROR] Không tìm thấy người dùng');
       throw new Error('Không tìm thấy người dùng');
     }
 
     // Kiểm tra secret 2FA
     if (!user.twoFactorSecretKey) {
-      console.log('[ERROR] Người dùng chưa có secret 2FA');
       throw new Error('Không có secret 2FA');
     }
 
     // Kiểm tra mã OTP
     const isValid = otplib.authenticator.verify({ token, secret: user.twoFactorSecretKey });
-
     if (!isValid) {
-      console.log('[ERROR] Mã OTP không hợp lệ');
-      return false;
+      throw new Error('Mã OTP không hợp lệ');
     }
 
-    // Hash user agent (thiết bị)
     const hashedUA = hashDeviceId(userAgent);
 
-    // Kiểm tra session
-    if (!user.sessions || user.sessions.length === 0) {
-      console.warn('[⚠️] Không có session nào');
-      return false;
-    }
-
+    // Tìm session hiện tại
     const sessionIndex = user.sessions.findIndex((s) => s.device_id === hashedUA);
     if (sessionIndex !== -1) {
-
       user.sessions[sessionIndex].is_2fa_verified = true;
       user.sessions[sessionIndex].last_login = new Date();
-      user.require_2fa = true;  // Đảm bảo require_2fa được cập nhật
-
     } else {
       console.warn('[⚠️] Không tìm thấy session tương ứng');
     }
 
-    // Lưu người dùng sau khi cập nhật
+    // Lưu cập nhật
     await user.save();
-    return true;
+
+    const userInfo = {
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+      is2FAVerified: true
+    };
+
+    const accessToken = await JwtProvider.generateToken(
+      userInfo,
+      process.env.ACCESS_TOKEN_SECRET_SIGNATURE,
+      process.env.ACCESS_TOKEN_LIFE
+    );
+
+    const refreshToken = await JwtProvider.generateToken(
+      userInfo,
+      process.env.REFRESH_TOKEN_SECRET_SIGNATURE,
+      process.env.REFRESH_TOKEN_LIFE
+    );
+
+    // Trả về token và user
+    return {
+      accessToken,
+      refreshToken,
+      ...pickUser(user)
+    };
   } catch (error) {
-    console.error('[ERROR] Lỗi xác thực 2FA:', error.message);
     throw new Error('Lỗi xác thực 2FA: ' + error.message);
   }
+};
+
+const disable2FA = async (userId, otpToken, userAgent) => {
+  const user = await userModel.findById(userId);
+  if (!user) throw new Error('Không tìm thấy người dùng');
+
+  if (!user.twoFactorSecretKey || !user.is2FAEnabled) {
+    throw new Error('2FA chưa được bật');
+  }
+
+  // Xác minh mã OTP hiện tại
+  const isValid = otplib.authenticator.verify({ token: otpToken, secret: user.twoFactorSecretKey });
+  if (!isValid) throw new Error('Mã OTP không hợp lệ');
+
+  const hashedUA = hashDeviceId(userAgent);
+
+  // Cập nhật session hiện tại: bỏ xác minh
+  const sessionIndex = user.sessions.findIndex((s) => s.device_id === hashedUA);
+  if (sessionIndex !== -1) {
+    user.sessions[sessionIndex].is_2fa_verified = false;
+  }
+
+  // Vô hiệu hóa 2FA cho user
+  user.twoFactorSecretKey = undefined;
+  user.is2FAEnabled = false;
+  await user.save();
+
+  return { message: 'Đã tắt xác thực hai bước thành công' };
 };
 
 
@@ -356,5 +392,6 @@ module.exports = {
   changePassword,
   get2FAQrCode,
   setup2FA,
-  verify2FA
+  verify2FA,
+  disable2FA 
 }

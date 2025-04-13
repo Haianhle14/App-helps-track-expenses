@@ -119,10 +119,17 @@ function Setting() {
                                         <span className="label">Đổi mật khẩu</span>
                                         <span className="value">********</span>
                                     </div>
-                                    <div className="info-item clickable" onClick={() => setShowSetup2FA(true)}>
-                                    <span className="label">Xác minh 2 bước</span>
-                                    <span className="value">{is2FAEnabled ? 'Đã bật' : 'Đang tắt'}</span>
-                                </div>
+                                    <div className="info-item">
+                                        <span className="label">Xác minh 2 bước</span>
+                                        {is2FAEnabled ? (
+                                            <span className="value enabled">Đã bật</span>
+                                        ) : (
+                                            <span className="value clickable" onClick={() => setShowSetup2FA(true)}>
+                                                Bật xác minh
+                                            </span>
+                                        )}
+                                    </div>
+
                                 </div>
                             </div>
                         </>
@@ -268,6 +275,22 @@ const SettingStyled = styled.div`
 
                     .value {
                         color: #666;
+
+                        &.enabled {
+                            color: green;
+                            font-weight: 600;
+                        }
+
+                        &.clickable {
+                            color: #007bff;
+                            cursor: pointer;
+                            text-decoration: underline;
+                            transition: color 0.2s ease-in-out;
+
+                            &:hover {
+                                color: #0056b3;
+                            }
+                        }
                     }
 
                     &.clickable {
