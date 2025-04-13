@@ -36,7 +36,7 @@ function AccountVerification() {
 
   // Nếu người dùng đã xác minh và có thông tin user, chuyển hướng tới dashboard
   if (user?.isActive) {
-    return <Navigate to="/dashboard" /> // Điều hướng đến trang Dashboard sau khi xác nhận tài khoản
+    return <Navigate to="/dashboard" />
   }
 
   // Nếu người dùng không xác minh, chuyển hướng về trang login

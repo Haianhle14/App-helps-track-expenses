@@ -1,7 +1,8 @@
 const mongoose = require('mongoose')
 const Joi = require('joi')
 const { EMAIL_RULE, EMAIL_RULE_MESSAGE } = require('../utils/validators')
-
+const ApiError = require('../utils/ApiError')
+const { StatusCodes } = require('http-status-codes');
 const USER_ROLES = {
   CLIENT: 'client',
   ADMIN: 'admin'
@@ -118,7 +119,19 @@ const createNew = async (data) => {
     const newUser = new User(validData)
     return await newUser.save()
   } catch (error) {
-    throw new Error(error)
+    // Nếu là lỗi duplicate key (MongoDB error code 11000)
+    if (error.code === 11000) {
+      const duplicateField = Object.keys(error.keyPattern)[0] // Lấy tên field bị trùng
+      throw new ApiError(StatusCodes.CONFLICT, `${duplicateField} đã được sử dụng.`)
+    }
+
+    // Nếu là lỗi Joi validate
+    if (error.isJoi) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, error.message)
+    }
+
+    // Các lỗi khác
+    throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Lỗi tạo tài khoản.')
   }
 }
 

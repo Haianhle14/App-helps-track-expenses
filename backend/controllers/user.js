@@ -17,7 +17,11 @@ const verifyAccount = async (req, res, next) => {
   try {
     const result = await userServices.verifyAccount(req.body)
     res.status(StatusCodes.OK).json(result)
-  } catch (error) { res.status(500).json({ message: 'Server Error' });}
+  } catch (error) {
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: error.message || 'Lỗi không xác định'
+    })
+  }
 }
 
 const login = async (req, res, next) => {
@@ -86,7 +90,7 @@ const get2FAQrCode = async (req, res) => {
   }
 };
 
-// ✅ Ghi nhận session sau khi quét QR code để bắt đầu 2FA
+// Ghi nhận session sau khi quét QR code để bắt đầu 2FA
 const setup2FA = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -104,10 +108,10 @@ const setup2FA = async (req, res) => {
   }
 };
 
-// ✅ Xác minh OTP từ ứng dụng Google Authenticator
+// Xác minh OTP từ ứng dụng Google Authenticator
 const verify2FA = async (req, res) => {
   try {
-    const userId = req.params.id; // ✅ lấy đúng string
+    const userId = req.params.id
     const { otpToken } = req.body;
     const userAgent = req.headers['user-agent'];
 
@@ -115,7 +119,7 @@ const verify2FA = async (req, res) => {
       return res.status(400).json({ message: 'Thiếu mã OTP.' });
     }
 
-    const isValid = await userServices.verify2FA(userId, otpToken, userAgent); // ✅ truyền userId là string
+    const isValid = await userServices.verify2FA(userId, otpToken, userAgent)
     if (!isValid) {
       return res.status(400).json({ message: 'Mã 2FA không hợp lệ.' });
     }
@@ -125,7 +129,21 @@ const verify2FA = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+async function disable2FA(req, res) {
+  try {
+    const userId = req.params.id
 
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    const result = await userServices.disable2FA(userId)
+
+    res.status(200).json(result)
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+}
 
 
 module.exports = {
@@ -137,5 +155,6 @@ module.exports = {
   changePassword,
   get2FAQrCode,
   setup2FA,
-  verify2FA
+  verify2FA,
+  disable2FA
 }

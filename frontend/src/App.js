@@ -33,11 +33,9 @@ function App() {
 
   const handleLoginSuccess = ({ require_2fa, user }) => {
     if (require_2fa) {
-      // Nếu cần xác thực 2FA thì show modal
       setShow2FA(true)
       setUser(user)
     } else {
-      // Đăng nhập bình thường
       setIsAuthenticated(true)
       localStorage.setItem("isAuthenticated", "true")
       navigate('/dashboard')
@@ -102,7 +100,6 @@ function App() {
     )
   }
 
-  // Nếu đã đăng nhập
   return (
     <AppStyled bg={bg}>
       <ToastContainer position="bottom-right" autoClose={3000} />

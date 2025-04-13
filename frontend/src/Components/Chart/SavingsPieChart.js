@@ -1,9 +1,9 @@
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
-import { useGlobalContext } from '../../context/globalContext'; // Adjust the import path as needed
+import { useGlobalContext } from '../../context/globalContext'
 
 const SavingsPieChart = () => {
-    const { savings } = useGlobalContext(); // Get savings data from the global context
+    const { savings } = useGlobalContext()
 
     return (
         <div>

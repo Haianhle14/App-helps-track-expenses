@@ -1,9 +1,8 @@
-// Orb.js
 import React, { useMemo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { useWindowSize } from '../../utils/useWindowSize'
 
-// Default animation, fallback khi chưa có kích thước cửa sổ
+
 const fallbackAnimation = keyframes`
   0% { transform: translate(0, 0); }
   50% { transform: translate(500px, 250px); }

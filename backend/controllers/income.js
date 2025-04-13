@@ -5,7 +5,6 @@ exports.addIncome = async (req, res) => {
   const { title, amount, category, description, date, userId } = req.body
 
   try {
-    // Kiểm tra các trường bắt buộc
     if (!title || !category || !date || !userId) {
       return res.status(400).json({ message: 'Vui lòng điền đầy đủ các trường bắt buộc!' })
     }

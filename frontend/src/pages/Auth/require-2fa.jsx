@@ -1,4 +1,3 @@
-// Author: TrungQuanDev | https://youtube.com/@trungquandev
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import Box from '@mui/material/Box'
@@ -8,7 +7,7 @@ import SecurityIcon from '@mui/icons-material/Security'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import { useGlobalContext } from '../../context/globalContext'
-// Tài liệu về Material Modal rất dễ ở đây: https://mui.com/material-ui/react-modal/
+
 function Require2FA({ user, handleSuccessVerify2FA }) {
   const [otpToken, setConfirmOtpToken] = useState('');
   const [error, setError] = useState(null);
@@ -23,8 +22,8 @@ function Require2FA({ user, handleSuccessVerify2FA }) {
     }
 
     try {
-      const updatedUser = await verify2FA(user._id, otpToken);  // Gọi API xác thực 2FA
-      handleSuccessVerify2FA(updatedUser);  // Xử lý thành công
+      const updatedUser = await verify2FA(user._id, otpToken)
+      handleSuccessVerify2FA(updatedUser)
       toast.success('Xác thực 2FA thành công!');
       setError(null);
     } catch (err) {
@@ -83,11 +82,7 @@ function Require2FA({ user, handleSuccessVerify2FA }) {
           </Box>
 
           <Box>
-            <Typography variant="span" sx={{ fontWeight: 'bold', fontSize: '0.9em', color: '#8395a7', '&:hover': { color: '#fdba26' } }}>
-              <a style={{ color: 'inherit', textDecoration: 'none' }} href='https://youtube.com/@trungquandev' target='_blank' rel='noreferrer'>
-                TrungQuanDev - Một Lập Trình Viên
-              </a>
-            </Typography>
+
           </Box>
         </Box>
       </Box>

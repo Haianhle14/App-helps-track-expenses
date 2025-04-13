@@ -18,19 +18,13 @@ const crypto = require('crypto');
 const createNew = async (reqBody) => {
   try {
     console.log('Register req.body:', reqBody)
-
-    // 1. Kiểm tra email và password
     if (!reqBody.email || !reqBody.password) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Email và mật khẩu là bắt buộc')
     }
-
-    // 2. Kiểm tra xem email đã tồn tại chưa
     const existUser = await userModel.findOneByEmail(reqBody.email)
     if (existUser) {
       throw new ApiError(StatusCodes.CONFLICT, 'Email đã tồn tại trong hệ thống!')
     }
-
-    // 3. Tạo thông tin user mới
     const nameFromEmail = reqBody.email.split('@')[0]
   const newUser = {
       email: reqBody.email,
@@ -40,11 +34,10 @@ const createNew = async (reqBody) => {
     verifyToken: uuidv4()
   }
 
-    // 4. Lưu user vào DB
   const createdUser = await userModel.createNew(newUser)
   const getNewUser = await userModel.findById(createdUser._id)
 
-    // 5. Gửi email xác thực
+    // Gửi email xác thực
   const verificationLink = `http://localhost:3000/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
   console.log('Verification link sent:', verificationLink); 
   const customSubject = 'Xác thực tài khoản của bạn'
@@ -74,7 +67,6 @@ const createNew = async (reqBody) => {
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!');
 
     if (existUser.isActive) {
-      console.log("Tài khoản đã xác thực, bỏ qua cập nhật.");
       return existUser;
     }
 
@@ -85,15 +77,14 @@ const createNew = async (reqBody) => {
 
     // Cập nhật trạng thái người dùng
     const updateData = {
-      isActive: true,  // Cập nhật tài khoản thành công (tức là đã xác minh)
-      verifyToken: null,  // Xóa token sau khi xác minh
+      isActive: true,
+      verifyToken: null,
       updatedAt: new Date()
     };
 
     await userModel.update(existUser._id, updateData);
     const updatedUser = await userModel.findById(existUser._id);
 
-    console.log("Thông tin người dùng sau khi xác thực:", updatedUser); // Kiểm tra trạng thái người dùng
     return updatedUser;
 
   } catch (error) {
@@ -114,8 +105,6 @@ const login = async (reqBody) => {
     if (!existUser) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản không tồn tại!');
     }
-
-    // Kiểm tra mật khẩu
     const isPasswordCorrect = bcryptjs.compareSync(reqBody.password, existUser.password);
     if (!isPasswordCorrect) {
       throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Email hoặc mật khẩu không đúng!');
@@ -148,7 +137,7 @@ const login = async (reqBody) => {
       accessToken,
       refreshToken,
       isActive: existUser.isActive,
-      ...pickUser(existUser)  // Giả sử pickUser là một hàm lọc thông tin người dùng cần thiết
+      ...pickUser(existUser)
     };
   } catch (error) {
     throw error;
@@ -196,16 +185,11 @@ const changePassword = async (userId, oldPassword, newPassword) => {
     if (!user) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy người dùng')
     }
-
-    console.log('Found user:', user)
-
     const isMatch = await bcryptjs.compare(oldPassword, user.password)
     if (!isMatch) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Mật khẩu cũ không chính xác')
     }
-
     const hashedNewPassword = await bcryptjs.hash(newPassword, 10)
-
     await userModel.update(userId, {
       password: hashedNewPassword,
       updatedAt: new Date()
@@ -222,15 +206,11 @@ const get2FAQrCode = async (userId) => {
     const user = await userModel.findById(userId);
     if (!user) throw new Error('User không tồn tại.');
 
-    // ✅ Nếu chưa có secret thì tạo mới
     if (!user.twoFactorSecretKey) {
       const secret = otplib.authenticator.generateSecret();
       user.twoFactorSecretKey = secret;
       await user.save();
-
-      // ⚠️ Lấy lại user từ DB sau khi lưu để chắc chắn secret đã cập nhật
       const freshUser = await userModel.findById(userId);
-
       const otpauth = otplib.authenticator.keyuri(
         freshUser.email,
         'ExpenseTracker',
@@ -277,7 +257,7 @@ const setup2FA = async (userId, otpToken, userAgent) => {
   const session = {
     device_id: hashDeviceId(userAgent),
     createdAt: new Date(),
-    is_2fa_verified: true, // Thiết lập xong là verified luôn
+    is_2fa_verified: true,
     last_login: new Date(),
   };
 
@@ -307,16 +287,15 @@ const verify2FA = async (userId, token, userAgent) => {
 
     const hashedUA = hashDeviceId(userAgent);
 
-    // Tìm session hiện tại
     const sessionIndex = user.sessions.findIndex((s) => s.device_id === hashedUA);
     if (sessionIndex !== -1) {
       user.sessions[sessionIndex].is_2fa_verified = true;
       user.sessions[sessionIndex].last_login = new Date();
     } else {
-      console.warn('[⚠️] Không tìm thấy session tương ứng');
+      console.warn('Không tìm thấy session tương ứng');
     }
 
-    // Lưu cập nhật
+    user.require_2fa = true;
     await user.save();
 
     const userInfo = {
@@ -347,38 +326,26 @@ const verify2FA = async (userId, token, userAgent) => {
   } catch (error) {
     throw new Error('Lỗi xác thực 2FA: ' + error.message);
   }
-};
+}
 
-const disable2FA = async (userId, otpToken, userAgent) => {
-  const user = await userModel.findById(userId);
-  if (!user) throw new Error('Không tìm thấy người dùng');
+async function disable2FA(userId) {
+  try {
+    const user = await User.findById(userId);
 
-  if (!user.twoFactorSecretKey || !user.is2FAEnabled) {
-    throw new Error('2FA chưa được bật');
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Xoá thông tin 2FA
+    user.twoFactorSecretKey = null;
+    user.sessions = []
+
+    await user.save();
+    return { success: true, message: '2FA has been disabled' };
+  } catch (error) {
+    throw new Error(`Error disabling 2FA: ${error.message}`);
   }
-
-  // Xác minh mã OTP hiện tại
-  const isValid = otplib.authenticator.verify({ token: otpToken, secret: user.twoFactorSecretKey });
-  if (!isValid) throw new Error('Mã OTP không hợp lệ');
-
-  const hashedUA = hashDeviceId(userAgent);
-
-  // Cập nhật session hiện tại: bỏ xác minh
-  const sessionIndex = user.sessions.findIndex((s) => s.device_id === hashedUA);
-  if (sessionIndex !== -1) {
-    user.sessions[sessionIndex].is_2fa_verified = false;
-  }
-
-  // Vô hiệu hóa 2FA cho user
-  user.twoFactorSecretKey = undefined;
-  user.is2FAEnabled = false;
-  await user.save();
-
-  return { message: 'Đã tắt xác thực hai bước thành công' };
-};
-
-
-
+}
 
 
 

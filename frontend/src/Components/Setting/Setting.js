@@ -5,17 +5,21 @@ import EditUsernameModal from './EditUsernameModal'
 import EditBioModal from './EditBioModal'
 import ChangePasswordModal from './ChangePasswordModal'
 import Setup2FA from './Setup2fa'
+import Disable2FAModal from './Disable2FAModal'
+
 function Setting() {
     const [showEditModal, setShowEditModal] = useState(false)
     const [showEditBio, setShowEditBio] = useState(false)
     const [showChangePassword, setShowChangePassword] = useState(false)
     const [showSetup2FA, setShowSetup2FA] = useState(false);
+    const [showDisable2FAModal, setShowDisable2FAModal] = useState(false);
     const [activeTab, setActiveTab] = useState('personal')
     const [displayName, setdisplayName] = useState('')
     const [bio, setBio] = useState('')
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
 
     const userId = localStorage.getItem('userId')
+    
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -24,7 +28,6 @@ function Setting() {
                 setdisplayName(user.displayName || '');
                 setBio(user.bio || '');
     
-                // Kiểm tra xem có bất kỳ session nào đã xác minh 2FA
                 const verifiedSession = user.sessions?.some(session => session.is_2fa_verified === true);
                 setIs2FAEnabled(verifiedSession);
             } catch (error) {
@@ -58,13 +61,14 @@ function Setting() {
         }
         setShowSetup2FA(false);
     };
-    
-    
-    
+
+    const handleSuccessDisable2FA = () => {
+        setIs2FAEnabled(false);
+        setShowDisable2FAModal(false);
+    }
 
     return (
         <SettingStyled>
-            {/* phần render giữ nguyên */}
             <div className="setting-container">
                 <div className="sidebar">
                     <h2>Cài đặt tài khoản</h2>
@@ -103,7 +107,6 @@ function Setting() {
                                         <span className="label">Giới thiệu</span>
                                         <span className="value">{bio || 'Chưa cập nhật'}</span>
                                     </div>
-                                    
                                 </div>
                             </div>
                         </>
@@ -119,17 +122,13 @@ function Setting() {
                                         <span className="label">Đổi mật khẩu</span>
                                         <span className="value">********</span>
                                     </div>
-                                    <div className="info-item">
+                                    <div className="info-item clickable" onClick={() => is2FAEnabled ? setShowDisable2FAModal(true) : setShowSetup2FA(true)}>
                                         <span className="label">Xác minh 2 bước</span>
-                                        {is2FAEnabled ? (
-                                            <span className="value enabled">Đã bật</span>
-                                        ) : (
-                                            <span className="value clickable" onClick={() => setShowSetup2FA(true)}>
-                                                Bật xác minh
-                                            </span>
-                                        )}
-                                    </div>
+                                        <span className={`${is2FAEnabled ? 'enabled' : 'disabled'}`}>
+                                            {is2FAEnabled ? 'Đã bật' : 'Đang tắt'}
+                                        </span>
 
+                                    </div>
                                 </div>
                             </div>
                         </>
@@ -158,6 +157,7 @@ function Setting() {
                     onClose={() => setShowChangePassword(false)}
                 />
             )}
+
             {showSetup2FA && 
                 <Setup2FA 
                     isOpen={showSetup2FA} 
@@ -165,10 +165,18 @@ function Setting() {
                     handleSuccessSetup2FA={handleSuccessSetup2FA} 
                 />
             }
+
+            {showDisable2FAModal && 
+                <Disable2FAModal 
+                    isOpen={showDisable2FAModal} 
+                    toggleOpen={setShowDisable2FAModal}
+                    user={{ _id: userId }}
+                    handleSuccessDisable2FA={handleSuccessDisable2FA}
+                />
+            }
         </SettingStyled>
     )
 }
-
 
 const SettingStyled = styled.div`
     width: 100%;
@@ -201,7 +209,7 @@ const SettingStyled = styled.div`
             color: #555;
             font-size: 0.95rem;
         }
-        
+
         .tab-btn {
             background-color: transparent;
             color: #222260;
@@ -274,22 +282,14 @@ const SettingStyled = styled.div`
                     }
 
                     .value {
-                        color: #666;
-
                         &.enabled {
                             color: green;
                             font-weight: 600;
                         }
 
-                        &.clickable {
-                            color: #007bff;
-                            cursor: pointer;
-                            text-decoration: underline;
-                            transition: color 0.2s ease-in-out;
-
-                            &:hover {
-                                color: #0056b3;
-                            }
+                        &.disabled {
+                            color: #999 !important; /* hoặc dùng đỏ nhạt: #cc4b4b */
+                            font-weight: 500;
                         }
                     }
 

@@ -4,7 +4,6 @@ exports.addSaving = async (req, res) => {
   const { goal, targetAmount, currentAmount = 0, userId } = req.body
 
   try {
-    // Kiểm tra đầu vào
     if (!goal || !targetAmount || !userId) {
       return res.status(400).json({ message: 'Thiếu thông tin mục tiêu hoặc userId!' })
     }

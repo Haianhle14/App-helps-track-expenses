@@ -30,18 +30,18 @@ function LoginForm({ onLoginSuccess }) {
     if (verifiedEmail) {
       toast.success(`Email ${verifiedEmail} đã được xác minh. Bạn có thể đăng nhập!`, { autoClose: 5000 });
       searchParams.delete('verifiedEmail');
-      setSearchParams(searchParams); // cập nhật URL để toast không hiện lại khi refresh
+      setSearchParams(searchParams)
     }
 
     if (registeredEmail) {
       toast.info(`Một email xác minh đã được gửi đến ${registeredEmail}.`, { autoClose: 5000 });
       searchParams.delete('registeredEmail');
-      setSearchParams(searchParams); // tương tự xóa param sau khi hiển thị
+      setSearchParams(searchParams)
     }
   }, [verifiedEmail, registeredEmail, searchParams, setSearchParams]);
 
-  // Hàm submit có gọi API login và lưu vào localStorage
 
+  // Hàm submit có gọi API login và lưu vào localStorage
   const submitLogIn = async (data) => {
     try {
       const response = await axios.post('http://localhost:5000/api/v1/users/login', data);
@@ -50,7 +50,7 @@ function LoginForm({ onLoginSuccess }) {
       localStorage.setItem('userId', _id);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('isActive', isActive);
-      localStorage.setItem('require2FA', require_2fa); // Lưu trạng thái 2FA
+      localStorage.setItem('require2FA', require_2fa);
   
       toast.success('Đăng nhập thành công!');
   

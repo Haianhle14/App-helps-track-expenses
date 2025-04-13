@@ -27,17 +27,32 @@ function RegisterForm() {
     try {
       toast.info('⏳ Đang xử lý đăng ký...', { autoClose: 2000 })
       const user = await registerUserAPI({ email, password })
-      toast.success('✅ Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', { autoClose: 5000 })
+      toast.success('🎉 Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', { autoClose: 5000 })
       navigate(`/login?registeredEmail=${user.email}`)
     } catch (error) {
-      console.error(error)
-      const errMsg = error?.response?.data?.message || '❌ Đăng ký thất bại. Vui lòng thử lại!'
+      console.error('🚨 Lỗi đăng ký:', error)
+  
+      let errMsg = '❌ Đăng ký thất bại. Vui lòng thử lại!'
+      // Nếu có lỗi chi tiết từ backend (ví dụ: lỗi từ Joi, email đã tồn tại, lỗi mạng...)
+      if (error?.response?.data?.message) {
+        errMsg = error.response.data.message
+      } else if (error?.message) {
+        errMsg = error.message
+      }
+  
       toast.error(errMsg, { autoClose: 5000 })
     }
   }
-
+  
   return (
-    <form onSubmit={handleSubmit(submitRegister)}>
+    <form
+      onSubmit={handleSubmit(
+        submitRegister,
+        () => {
+          toast.warning('⚠️ Vui lòng kiểm tra lại thông tin đăng ký.', { autoClose: 3000 })
+        }
+      )}
+    >
       <Zoom in={true} style={{ transitionDelay: '200ms' }}>
         <MuiCard sx={{ minWidth: 380, maxWidth: 380, marginTop: '6em' }}>
           <Box sx={{
@@ -98,8 +113,11 @@ function RegisterForm() {
                 helperText={errors['password_confirmation']?.message}
                 {...register('password_confirmation', {
                   validate: (value) => {
-                    if (value === watch('password')) return true
-                    return 'Xác nhận mật khẩu không khớp!!'
+                    const matched = value === watch('password')
+                    if (!matched) {
+                      toast.warning('⚠️ Xác nhận mật khẩu không khớp!!', { autoClose: 3000 })
+                    }
+                    return matched || 'Xác nhận mật khẩu không khớp!!'
                   }
                 })}
               />

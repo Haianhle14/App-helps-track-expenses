@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const DebtSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Tham chiếu đến bảng User
+        ref: 'User',
         required: true
       },
     type: {
-        type: String, // 'borrow' hoặc 'lend'
+        type: String,
         required: true,
         enum: ['borrow', 'lend'], // borrow: nợ vay, lend: nợ cho vay
     },
@@ -17,11 +17,11 @@ const DebtSchema = new mongoose.Schema({
     },
     borrower: {
         type: String,
-        required: function() { return this.type === 'lend'; }, // Chỉ cần khi nợ cho vay
+        required: function() { return this.type === 'lend'; },
     },
     lender: {
         type: String,
-        required: function() { return this.type === 'borrow'; }, // Chỉ cần khi nợ vay
+        required: function() { return this.type === 'borrow'; },
     },
     description: {
         type: String,

@@ -11,7 +11,7 @@ export const GlobalProvider = ({ children }) => {
     const [debts, setDebts] = useState([])
     const [error, setError] = useState(null)
     const [user, setUser] = useState(null)
-    const [token, setToken] = useState(localStorage.getItem('token')) // Thêm state token
+    const [token, setToken] = useState(localStorage.getItem('token'))
     const [twoFactorQR, setTwoFactorQR] = useState(null);
     const [is2FAVerified, setIs2FAVerified] = useState(false);
 
@@ -25,16 +25,15 @@ export const GlobalProvider = ({ children }) => {
         setError(null)
     }, [])
 
-    // --- 2FA ---
 
+    // --- 2FA ---
     const get2FAQrCode = async (userId) => {
         if (!userId) {
-          console.warn('⚠️ userId không tồn tại khi gọi get2FAQrCode');
+          console.warn('userId không tồn tại khi gọi get2FAQrCode');
           return;
         }
       
         try {
-          console.log('[DEBUG] Gọi QR cho userId:', userId);
           const { data } = await axios.get(`${BASE_URL}${userId}/get_2fa_qr_code`);
           setTwoFactorQR(data.qrCode);
           return data;
@@ -48,7 +47,7 @@ export const GlobalProvider = ({ children }) => {
         try {
           const { data } = await axios.post(`${BASE_URL}${userId}/setup_2fa`, {
             otpToken,
-            userAgent // ✅ đúng biến truyền vào
+            userAgent
           });
           return data;
         } catch (err) {
@@ -68,12 +67,10 @@ export const GlobalProvider = ({ children }) => {
         // Lưu token mới vào localStorage
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
-    
-        // Cập nhật context user
         setUser(data);
     
         // Lưu trạng thái 2FA đã xác minh
-        localStorage.setItem('is2FAVerified', true); // Lưu trạng thái vào localStorage
+        localStorage.setItem('is2FAVerified', true)
     
         setIs2FAVerified(true);
         return data;
@@ -82,8 +79,28 @@ export const GlobalProvider = ({ children }) => {
         throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại');
         }
     };
+    async function disable2FA(userId) {
+        try {
+            const response = await fetch(`${BASE_URL}${userId}/disable-2fa`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
     
-    // Kiểm tra trạng thái 2FA khi refresh trang
+            const data = await response.json();
+            if (data.success) {
+                alert('2FA đã được vô hiệu hóa');
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        } catch (error) {
+            alert('Lỗi kết nối: ' + error.message);
+        }
+    }
+      
+            
+    
     const check2FAStatus = () => {
         const is2FAVerified = localStorage.getItem('is2FAVerified');
         if (is2FAVerified === 'true') {
@@ -93,7 +110,6 @@ export const GlobalProvider = ({ children }) => {
         }
     };
     
-    // Gọi check2FAStatus() sau khi trang load
     useEffect(() => {
         check2FAStatus();
     }, []);
@@ -108,7 +124,7 @@ export const GlobalProvider = ({ children }) => {
         }
         try {
             const { data } = await axios.get(`${BASE_URL}users/${userId}`, {
-                params: { _: new Date().getTime() } // Cache buster
+                params: { _: new Date().getTime() }
             });
             setUser(data);
             if (data?.displayName) {
@@ -156,7 +172,7 @@ export const GlobalProvider = ({ children }) => {
 
     const verifyUserAPI = async ({ email, token }) => {
         try {
-          const response = await axios.put(`${BASE_URL}users/verify`, { email, token }) // ✅ Đúng route rồi nhé
+          const response = await axios.put(`${BASE_URL}users/verify`, { email, token })
           setUser(response.data.user)
           return response.data
         } catch (error) {
@@ -375,7 +391,7 @@ export const GlobalProvider = ({ children }) => {
             const { data } = await axios.post(`${BASE_URL}users/login`, credentials)
             localStorage.setItem('token', data.token)
             localStorage.setItem('userId', data.userId)
-            setToken(data.token) // Cập nhật token vào state
+            setToken(data.token)
             getUser()
         } catch (err) {
             setError(err.response?.data?.message || 'Đăng nhập thất bại')
@@ -384,11 +400,11 @@ export const GlobalProvider = ({ children }) => {
 
     const logout = () => {
         setUser(null)
-        setToken(null) // Xóa token khỏi state
+        setToken(null)
         localStorage.removeItem('token')
         localStorage.removeItem('userId')
         localStorage.removeItem('userName')
-        window.location.href = "/login" // Điều hướng về trang đăng nhập
+        window.location.href = "/login"
     }
 
     useEffect(() => {
@@ -399,7 +415,7 @@ export const GlobalProvider = ({ children }) => {
             getIncomes();
             getExpenses();
         }
-    }, [token, getUser, getSavings, getDebts, getIncomes, getExpenses]) // Theo dõi token
+    }, [token, getUser, getSavings, getDebts, getIncomes, getExpenses])
 
     useEffect(() => {
         resetAllData()
@@ -424,7 +440,7 @@ export const GlobalProvider = ({ children }) => {
                 error, setError,
                 changePassword,
                 get2FAQrCode,
-                setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified
+                setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified, disable2FA
             }}
         >
             {children}

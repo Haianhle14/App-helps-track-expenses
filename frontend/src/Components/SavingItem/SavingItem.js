@@ -27,7 +27,7 @@ function SavingItem({ _id, goal, targetAmount, currentAmount, updateProgress, de
         const newAmount = prompt('Nhập số tiền bạn muốn thêm vào:', '0')
         if (newAmount && !isNaN(newAmount)) {
             const totalAmount = parseFloat(current) + parseFloat(newAmount)
-            setCurrent(totalAmount)  // Cập nhật UI ngay lập tức
+            setCurrent(totalAmount)
             updateProgress(_id, totalAmount)
             toast.success('Cập nhật tiến độ thành công!')
         } else {
