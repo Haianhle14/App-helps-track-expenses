@@ -13,13 +13,26 @@ function Debts() {
         getDebts();
     }, [getDebts]);
 
+    const { totalBorrowDebt, totalLendDebt } = totalDebts();  // Gọi hàm totalDebts và lấy tổng nợ vay và cho vay
+
     return (
         <DebtStyled>
             <InnerLayout>
                 <h1>Quản Lý Vay Và Cho Vay</h1>
-                <h2 className="total-debt">
-                    Tổng số tiền liên quan: <span>{totalDebts()}đ</span>
-                </h2>
+
+                <div className="total-debt">
+                    <div className="debt-card">
+                        <h2>
+                            Tổng nợ bạn phải trả: <span>{totalBorrowDebt.toLocaleString('vi-VN')}đ</span>
+                        </h2>
+                    </div>
+                    <div className="debt-card">
+                        <h2>
+                            Tổng tiền bạn đã cho vay: <span>{totalLendDebt.toLocaleString('vi-VN')}đ</span>
+                        </h2>
+                    </div>
+                </div>
+
                 <div className="debt-content">
                     <div className="form-container">
                         <DebtForm />
@@ -51,55 +64,76 @@ function Debts() {
 const DebtStyled = styled.div`
     height: 100vh;
     overflow-y: auto;
-    overflow-x: scroll;
-    
-    /* Dành cho trình duyệt WebKit (Chrome, Safari):
-       - width: 0px sẽ ẩn thanh cuộn theo chiều dọc (vì nó sử dụng chiều rộng của scrollbar)
-       - height: 12px (hoặc giá trị bạn mong muốn) sẽ giữ lại thanh cuộn ngang */
-    &::-webkit-scrollbar {
-        width: 0px;    /* Ẩn scrollbar dọc */
-        height: 12px;  /* Hiển thị scrollbar ngang với chiều cao 12px */
-    }
-
-    /* Trên Firefox, bạn không thể tách riêng từng chiều dễ dàng.
-       Nếu cần thiết, bạn có thể sử dụng các thư viện CSS hoặc custom scrollbar plugin để tùy biến riêng.
-       Hoặc sử dụng:
-       scrollbar-width: thin;  (thanh cuộn sẽ hiển thị ở dạng mỏng)
-       */
-    scrollbar-width: thin;
-    -ms-overflow-style: auto; /* IE 10+ */
+    overflow-x: hidden;
+    background: #f9f9f9;
 
     .total-debt {
         display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #fcf6f9;
-        border: 2px solid #ffffff;
-        box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-        border-radius: 20px;
-        padding: 1rem;
-        margin: 1rem 0;
-        font-size: 2rem;
-        gap: 0.5rem;
+        justify-content: space-between;
+        gap: 2rem;
+        margin-bottom: 2rem;
 
-        span {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--color-green);
+        .debt-card {
+            flex: 1;
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+
+            h2 {
+                margin: 0;
+                font-size: 1.8rem;
+                color: #333;
+            }
+
+            span {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: #4caf50;
+            }
+
+            &:first-child {
+                background: #f3f9f7;
+            }
+
+            &:last-child {
+                background: #fff8e1;
+            }
         }
     }
 
     .debt-content {
         display: flex;
         gap: 2rem;
+        justify-content: space-between;
+
+        .form-container {
+            flex: 0.3;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+        }
 
         .debts {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
     }
-`
 
-
-
+    h1 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        color: #333;
+    }
+`;
 
 export default Debts;
