@@ -65,7 +65,6 @@ const DebtStyled = styled.div`
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
-    background: #f9f9f9;
 
     .total-debt {
         display: flex;
@@ -129,10 +128,8 @@ const DebtStyled = styled.div`
     }
 
     h1 {
-        text-align: center;
         font-size: 2.5rem;
         margin-bottom: 2rem;
-        color: #333;
     }
 `;
 

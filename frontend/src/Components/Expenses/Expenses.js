@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useGlobalContext } from '../../context/globalContext';
 import { InnerLayout } from '../../styles/Layouts';
-
 import IncomeItem from '../IncomeItem/IncomeItem';
 import ExpenseForm from './ExpenseForm';
 
@@ -43,11 +42,22 @@ function Expenses() {
         </ExpenseStyled>
     )
 }
-
 const ExpenseStyled = styled.div`
     display: flex;
+    flex-direction: column;
     overflow: auto;
-    .total-income{
+
+    h1 {
+        position: static;
+        font-size: 2.5rem;
+        @media (max-width: 768px) {
+            position: static;
+            top: unset;
+            background: none;
+        }
+    }
+
+    .total-income {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -59,19 +69,24 @@ const ExpenseStyled = styled.div`
         margin: 1rem 0;
         font-size: 2rem;
         gap: .5rem;
-        span{
+
+        span {
             font-size: 2.5rem;
             font-weight: 800;
             color: var(--color-green);
         }
     }
-    .income-content{
+
+    .income-content {
         display: flex;
         gap: 2rem;
-        .incomes{
+
+        .incomes {
             flex: 1;
         }
     }
 `;
+
+
 
 export default Expenses

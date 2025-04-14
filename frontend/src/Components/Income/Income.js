@@ -48,6 +48,9 @@ function Income() {
 const IncomeStyled = styled.div`
     display: flex;
     overflow: auto;
+    h1 {
+        font-size: 2.5rem;
+    }
     .total-income{
         display: flex;
         justify-content: center;

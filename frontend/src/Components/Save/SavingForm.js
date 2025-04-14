@@ -52,30 +52,41 @@ const FormStyled = styled.form`
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    margin-bottom: 2rem;
 
     input {
-        padding: 0.8rem;
+        padding: 1rem;
         width: 100%;
         max-width: 500px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
         font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+
+        &:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(109, 213, 237, 0.3);
+        }
     }
 
     button {
-        padding: 0.8rem 1.5rem;
-        margin-bottom: 1.5rem;
+        padding: 0.9rem 2rem;
         background: var(--color-accent);
         color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 12px;
         cursor: pointer;
         font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 
         &:hover {
             background: linear-gradient(to right, #6dd5ed, #2193b0);
+            transform: translateY(-2px);
         }
     }
-`
+`;
 
 export default SavingGoalForm

@@ -8,7 +8,7 @@ import PieChart from '../Chart/PieChart';
 import SavingsPieChart from '../Chart/SavingsPieChart';
 import Require2FA from '../../pages/Auth/require-2fa'
 import MonthlySummaryChart from '../Chart/MonthlySummaryChart';
-
+import ShowFullHistoryModal from '../../History/ShowFullHistoryModal';
 function Dashboard() {
     const {
         user, is2FAVerified, setIs2FAVerified,
@@ -17,6 +17,8 @@ function Dashboard() {
     } = useGlobalContext();
 
     const [showExpensesList, setShowExpensesList] = useState(false);
+    const [showFullHistory, setShowFullHistory] = useState(false);
+
 
     useEffect(() => {
         getIncomes();
@@ -47,8 +49,8 @@ function Dashboard() {
     return (
         <DashboardStyled>
             <InnerLayout>
-                <h1>Tất Cả Các Giao Dịch</h1>
                 <div className="dashboard-content">
+                <h1>Tất Cả Các Giao Dịch</h1>
                     <div className="stats-con">
                         <div className="chart-con">
                             <Chart />
@@ -83,7 +85,7 @@ function Dashboard() {
                             </div>
                         </div>
                         <div className="history-con">
-                            <History />
+                            <History onClickViewAll={() => setShowFullHistory(true)} />
                             <h2 className="salary-title">Min <span>Thu nhập</span> Max</h2>
                             <div className="salary-item">
                                 <p>{Math.min(...incomes.map(item => item.amount))}đ</p>
@@ -108,6 +110,9 @@ function Dashboard() {
                         </div>
                     </div>
                 </div>
+                {showFullHistory && (
+                <ShowFullHistoryModal onClose={() => setShowFullHistory(false)} />)
+                }
             </InnerLayout>
         </DashboardStyled>
     );
@@ -198,7 +203,7 @@ const DashboardStyled = styled.div`
             grid-column: span 1;
 
             h2 {
-                margin: 1rem 0;
+                margin: 0;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
