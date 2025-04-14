@@ -278,8 +278,24 @@ export const GlobalProvider = ({ children }) => {
     }
     
 
-    const totalDebts = () => debts.reduce((acc, debt) => acc + debt.amount, 0)
-
+    const totalDebts = () => {
+        // Tính tổng số nợ mà người dùng phải trả (nợ vay)
+        const totalBorrowDebt = debts
+            .filter(debt => debt.type === 'borrow')  // Lọc ra nợ vay
+            .reduce((acc, debt) => acc + debt.amount, 0);
+    
+        // Tính tổng số tiền mà người dùng đã cho vay (nợ cho vay)
+        const totalLendDebt = debts
+            .filter(debt => debt.type === 'lend')  // Lọc ra nợ cho vay
+            .reduce((acc, debt) => acc + debt.amount, 0);
+    
+        // Trả về cả tổng nợ vay và tổng tiền cho vay
+        return {
+            totalBorrowDebt,  // Tổng nợ vay (số tiền bạn phải trả)
+            totalLendDebt,    // Tổng nợ cho vay (số tiền bạn đã cho vay)
+        };
+    };
+    
     // --- INCOMES ---
     const getIncomes = useCallback(async () => {
         if (!userId) return
@@ -357,6 +373,50 @@ export const GlobalProvider = ({ children }) => {
     }
     
     // --- TỔNG HỢP ---
+    const getMonthlySummary = () => {
+        const summary = {};
+      
+        // Kiểm tra xem các mảng dữ liệu có hợp lệ hay không
+        if (!Array.isArray(incomes) || !Array.isArray(expenses) || !Array.isArray(savings) || !Array.isArray(debts)) {
+          return summary; // Trả về một đối tượng rỗng nếu không có dữ liệu hợp lệ
+        }
+      
+        // Xử lý dữ liệu từ incomes
+        incomes.forEach(income => {
+          const month = new Date(income?.date).toLocaleString('default', { month: 'short', year: 'numeric' });
+          if (!month) return; // Nếu tháng không hợp lệ, bỏ qua
+          if (!summary[month]) summary[month] = { income: 0, expense: 0, saving: 0, lend: 0, borrow: 0 };
+          summary[month].income += income?.amount || 0; // Sử dụng giá trị mặc định 0 nếu amount là undefined
+        });
+      
+        // Xử lý dữ liệu từ expenses
+        expenses.forEach(expense => {
+          const month = new Date(expense?.date).toLocaleString('default', { month: 'short', year: 'numeric' });
+          if (!month) return; // Nếu tháng không hợp lệ, bỏ qua
+          if (!summary[month]) summary[month] = { income: 0, expense: 0, saving: 0, lend: 0, borrow: 0 };
+          summary[month].expense += expense?.amount || 0; // Sử dụng giá trị mặc định 0 nếu amount là undefined
+        });
+      
+      
+        // Xử lý dữ liệu từ debts
+        debts.forEach(debt => {
+          const month = new Date(debt?.dueDate).toLocaleString('default', { month: 'short', year: 'numeric' });
+          if (!month) return; // Nếu tháng không hợp lệ, bỏ qua
+          if (!summary[month]) summary[month] = { income: 0, expense: 0, saving: 0, lend: 0, borrow: 0 };
+      
+          // Cập nhật số tiền cho vay hoặc nợ vay
+          if (debt.type === 'lend') {
+            summary[month].lend += debt?.amount || 0; // Dùng 0 nếu amount không hợp lệ
+          } else if (debt.type === 'borrow') {
+            summary[month].borrow += debt?.amount || 0; // Dùng 0 nếu amount không hợp lệ
+          }
+        });
+      
+        return summary;
+      };
+      
+      
+
     const totalExpenses = () => {
         const expenseSum = expenses.reduce((acc, expense) => acc + expense.amount, 0)
         const savingSpent = savings.reduce((acc, saving) => acc + saving.currentAmount, 0)
@@ -431,16 +491,14 @@ export const GlobalProvider = ({ children }) => {
     return (
         <GlobalContext.Provider
             value={{
-                user, getUser, updateUser, verifyUserAPI, login, logout,
+                user, getUser, updateUser, verifyUserAPI, changePassword, login, logout,
                 savings, getSavings, addSaving, deleteSaving, updateSavingProgress,
                 debts, getDebts, addDebt, deleteDebt, totalDebts,
                 incomes, getIncomes, addIncome, deleteIncome, totalIncome,
                 expenses, getExpenses, addExpense, deleteExpense, totalExpenses,
-                totalBalance, transactionHistory, savingsProgress,
+                totalBalance, transactionHistory, getMonthlySummary, savingsProgress,
                 error, setError,
-                changePassword,
-                get2FAQrCode,
-                setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified, disable2FA
+                get2FAQrCode, setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified, disable2FA
             }}
         >
             {children}

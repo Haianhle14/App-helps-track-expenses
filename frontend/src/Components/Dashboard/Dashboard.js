@@ -7,6 +7,7 @@ import Chart from '../Chart/Chart';
 import PieChart from '../Chart/PieChart';
 import SavingsPieChart from '../Chart/SavingsPieChart';
 import Require2FA from '../../pages/Auth/require-2fa'
+import MonthlySummaryChart from '../Chart/MonthlySummaryChart';
 
 function Dashboard() {
     const {
@@ -101,6 +102,9 @@ function Dashboard() {
                             <div className="savings-pie-chart-item">
                                 <SavingsPieChart totalCurrent={totalCurrent} totalTarget={totalTarget} />
                             </div>
+                        </div>
+                        <div className="monthly-summary-chart-con">
+                            <MonthlySummaryChart />
                         </div>
                     </div>
                 </div>
@@ -259,6 +263,25 @@ const DashboardStyled = styled.div`
                 }
             }
         }
+        .monthly-summary-chart-con {
+            grid-column: span 3;
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+
+            h2 {
+                font-size: 1.8rem;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+
+            @media (max-width: 768px) {
+                width: 100%;
+            }
+        }
+
     }
 
     .expenses-list {
