@@ -9,9 +9,22 @@ const ShowFullHistoryModal = ({ onClose }) => {
   const allHistory = [
     ...incomes.map(item => ({ ...item, type: 'Thu nhập' })),
     ...expenses.map(item => ({ ...item, type: 'Chi tiêu' })),
-    ...debts.map(item => ({ ...item, type: item.type === 'lend' ? 'Cho vay' : 'Đi vay' })),
-    { title: 'Tiết kiệm', amount: totalCurrent, type: 'Tiết kiệm', createdAt: new Date().toISOString() },
+    ...debts.map(item => {
+      const isLend = item.type === 'lend';
+      return {
+        ...item,
+        type: isLend ? 'Cho vay' : 'Đi vay',
+        title: isLend ? `Cho ${item.borrower} vay` : `Vay từ ${item.lender}`
+      };
+    }),
+    {
+      title: 'Tiết kiệm',
+      amount: totalCurrent,
+      type: 'Tiết kiệm',
+      createdAt: new Date().toISOString()
+    },
   ];
+  
 
   const sortedHistory = allHistory.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 

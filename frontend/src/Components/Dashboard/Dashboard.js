@@ -9,6 +9,7 @@ import SavingsPieChart from '../Chart/SavingsPieChart';
 import Require2FA from '../../pages/Auth/require-2fa'
 import MonthlySummaryChart from '../Chart/MonthlySummaryChart';
 import ShowFullHistoryModal from '../../History/ShowFullHistoryModal';
+import UpcomingDebts from '../../History/UpcomingDebts'
 function Dashboard() {
     const {
         user, is2FAVerified, setIs2FAVerified,
@@ -83,6 +84,9 @@ function Dashboard() {
                                     <p>{totalBalance()}đ</p>
                                 </div>
                             </div>
+                            <div className="upcoming-debts">
+                                <UpcomingDebts />                              
+                            </div>
                         </div>
                         <div className="history-con">
                             <History onClickViewAll={() => setShowFullHistory(true)} />
@@ -103,12 +107,12 @@ function Dashboard() {
                             </div>
                             <div className="savings-pie-chart-item">
                                 <SavingsPieChart totalCurrent={totalCurrent} totalTarget={totalTarget} />
-                            </div>
-                        </div>
-                        <div className="monthly-summary-chart-con">
-                            <MonthlySummaryChart />
                         </div>
                     </div>
+                    <div className="monthly-summary-chart-con">
+                        <MonthlySummaryChart />
+                    </div>
+                </div>
                 </div>
                 {showFullHistory && (
                 <ShowFullHistoryModal onClose={() => setShowFullHistory(false)} />)
@@ -120,7 +124,6 @@ function Dashboard() {
 
 const DashboardStyled = styled.div`
     height: 100vh;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
 
@@ -197,6 +200,61 @@ const DashboardStyled = styled.div`
                     color: var(--color-green);
                 }
             }
+            .upcoming-debts {
+                margin-top: 2rem;
+                width: 100%;
+                background: #FCF6F9;
+                border: 2px solid #FFFFFF;
+                box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.06);
+                border-radius: 20px;
+                padding: 1.5rem;
+                text-align: center;
+                max-height: 460px; /* hiển thị tầm 2 mục */
+                overflow-y: auto;  /* cho phép cuộn khi nhiều hơn */
+                
+                h2 {
+                    font-size: 1.6rem;
+                    margin-bottom: 1rem;
+                    text-align: center;
+                }
+
+                ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+
+                    li {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        padding: 0.8rem 0;
+                        border-top: 1px solid #e0e0e0;
+                        font-size: 1.2rem;
+                        width: 100%;
+
+                        span {
+                            font-weight: 600;
+                        }
+
+                        &:last-child {
+                            border-bottom: none;
+                        }
+                    }
+                }
+
+                /* Optional: style for scrollbar */
+                &::-webkit-scrollbar {
+                    width: 6px;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: #ccc;
+                    border-radius: 6px;
+                }
+            }
+
         }
 
         .history-con {
@@ -246,7 +304,6 @@ const DashboardStyled = styled.div`
             padding: 2rem;
             border-radius: 20px;
             box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem;
 
             .pie-chart-item {
                 display: flex;
@@ -274,7 +331,6 @@ const DashboardStyled = styled.div`
             padding: 2rem;
             border-radius: 20px;
             box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-            margin-top: 2rem;
 
             h2 {
                 font-size: 1.8rem;
@@ -284,6 +340,9 @@ const DashboardStyled = styled.div`
 
             @media (max-width: 768px) {
                 width: 100%;
+            }
+            .recharts-legend-wrapper {
+                padding-bottom: 1.5rem;
             }
         }
 

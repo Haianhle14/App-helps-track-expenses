@@ -438,6 +438,19 @@ export const GlobalProvider = ({ children }) => {
         ]
         return history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3);
     }
+
+    const getUpcomingDebtsReminder = (daysBefore = 7) => {
+        if (!Array.isArray(debts)) return [];
+    
+        const today = new Date();
+        const reminderDate = new Date();
+        reminderDate.setDate(today.getDate() + daysBefore);
+    
+        return debts.filter(debt => {
+            const due = new Date(debt.dueDate);
+            return due >= today && due <= reminderDate;
+        }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    };
     
     
     const savingsProgress = () => {
@@ -498,7 +511,8 @@ export const GlobalProvider = ({ children }) => {
                 expenses, getExpenses, addExpense, deleteExpense, totalExpenses,
                 totalBalance, transactionHistory, getMonthlySummary, savingsProgress,
                 error, setError,
-                get2FAQrCode, setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified, disable2FA
+                get2FAQrCode, setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified, disable2FA,
+                getUpcomingDebtsReminder
             }}
         >
             {children}
