@@ -142,23 +142,41 @@ function App() {
 }
 
 const AppStyled = styled.div`
-  height: 100vh;
-  background-image: url(${props => props.bg});
-  position: relative;
-  main {
-    flex: 1;
-    background: rgba(252, 246, 249, 0.78);
-    border: 3px solid #FFFFFF;
-    backdrop-filter: blur(4.5px);
-    border-radius: 32px;
-    overflow-x: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &::-webkit-scrollbar {
-      width: 0;
-    }
+height: 100vh;
+background-image: url(${props => props.bg});
+position: relative;
+
+main {
+  flex: 1;
+  background: rgba(252, 246, 249, 0.78);
+  border: 3px solid #FFFFFF;
+  backdrop-filter: blur(4.5px);
+  border-radius: 32px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  padding: 2rem;
+
+  overflow-x: auto;   /* Hiện thanh cuộn ngang nếu tràn */
+  overflow-y: auto;   /* Hiện thanh cuộn dọc nếu tràn */
+
+  /* Optional: hiện thanh cuộn tùy chỉnh */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
-`
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
+`;
+
 
 export default App

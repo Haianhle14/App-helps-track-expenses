@@ -28,7 +28,7 @@ function Saving() {
 
     return (
         <SavingStyle>
-            <h2>Mục Tiêu Tiết kiệm</h2>
+            <h1>Mục Tiêu Tiết kiệm</h1>
 
             {/* Form thêm mục tiêu */}
             <SavingGoalForm onAdd={addSaving} />
@@ -58,12 +58,14 @@ function Saving() {
 }
 
 const SavingStyle = styled.div`
-    margin: 1rem; 
-    padding-top: 1rem;
-    h2 {
-        font-size: 2rem;
-        padding-bottom: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+
+    h1 {
+        font-size: 2.5rem;
+        text-align: center;
     }
 `;
+
 
 export default Saving;

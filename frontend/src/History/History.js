@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { useGlobalContext } from '../context/globalContext';
 
-function History() {
+function History({ onClickViewAll }) {
     const { transactionHistory } = useGlobalContext();
 
     // Kiểm tra nếu transactionHistory là một hàm, thì gọi nó, nếu không, dùng trực tiếp
@@ -10,8 +10,13 @@ function History() {
 
     return (
         <HistoryStyled>
-            <div>
+            <div className="header">
                 <h2>Lịch sử gần đây</h2>
+                {onClickViewAll && (
+                    <button className="view-all-btn" onClick={onClickViewAll}>
+                        Xem tất cả
+                    </button>
+                )}
             </div>
             {history.map((item, index) => {
                 const { _id, title, amount, type } = item;
@@ -41,12 +46,34 @@ const HistoryStyled = styled.div`
     flex-direction: column;
     gap: 1rem;
 
-    h2 {
-        font-size: 1.5rem;
-        font-weight: bold;
-        text-align: center;
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 1rem;
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .view-all-btn {
+            padding: 0.4rem 0.8rem;
+            background: #5fd2c9;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s ease;
+
+            &:hover {
+                background: #44b5af;
+            }
+        }
     }
+
     .history-item {
         background: #FCF6F9;
         border: 2px solid #FFFFFF;
