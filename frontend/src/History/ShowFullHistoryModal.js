@@ -105,15 +105,20 @@ const Overlay = styled.div`
   justify-content: center;
   z-index: 1000;
 `;
-
 const ModalBox = styled.div`
   background: #fff;
   padding: 2rem;
   border-radius: 16px;
   width: 600px;
   max-height: 80vh;
-  overflow-y: auto;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   h2 {
     text-align: center;
@@ -179,6 +184,7 @@ const ModalBox = styled.div`
     }
   }
 `;
+
 
 const CloseButton = styled.button`
   position: fixed;

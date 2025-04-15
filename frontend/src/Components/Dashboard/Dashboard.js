@@ -10,7 +10,6 @@ import SavingsPieChart from '../Chart/SavingsPieChart';
 import Require2FA from '../../pages/Auth/require-2fa'
 import MonthlySummaryChart from '../Chart/MonthlySummaryChart';
 import ShowFullHistoryModal from '../../History/ShowFullHistoryModal';
-import UpcomingDebts from '../../History/UpcomingDebts'
 import SearchTransactionModal from '../../History/SearchTransactionModal';
 
 function Dashboard() {
@@ -88,9 +87,6 @@ function Dashboard() {
                                     <h2>Tổng số dư</h2>
                                     <p>{totalBalance()}đ</p>
                                 </div>
-                            </div>
-                            <div className="upcoming-debts">
-                                <UpcomingDebts />                              
                             </div>
                         </div>
                         <div className="history-con">

@@ -50,6 +50,7 @@ const IncomeStyled = styled.div`
 
     h1 {
         font-size: 2.5rem;
+        text-align: center;
     }
 
     .total-income {

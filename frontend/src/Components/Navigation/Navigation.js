@@ -5,6 +5,7 @@ import { signout } from '../../utils/Icons'
 import { menuItems } from '../../utils/menuItems'
 import { useNavigate } from 'react-router-dom'
 import { useGlobalContext } from '../../context/globalContext'
+import UpcomingDebts from '../../History/UpcomingDebts'
 import axios from 'axios'
 
 const BASE_URL = 'http://localhost:5000/api/v1/'
@@ -13,7 +14,10 @@ function Navigation({ active, setActive, setIsAuthenticated, openProfilePanel  }
     const navigate = useNavigate()
     const { user, logout } = useGlobalContext()
     const [localUser, setLocalUser] = useState(null)
-    const [showDropdown, setShowDropdown] = useState(false)
+    const [showUpcomingDebts, setShowUpcomingDebts] = useState(false);
+    const { getUpcomingDebtsReminder } = useGlobalContext();
+    const [upcomingCount, setUpcomingCount] = useState(0);
+
 
     useEffect(() => {
         const storedUserId = localStorage.getItem("userId");
@@ -27,7 +31,11 @@ function Navigation({ active, setActive, setIsAuthenticated, openProfilePanel  }
         } else {
             setLocalUser(user);
         }
-    }, [user])
+    
+        const reminders = getUpcomingDebtsReminder(7);
+        setUpcomingCount(reminders.length);
+    }, [user, getUpcomingDebtsReminder]);
+    
 
     const handleMenuClick = (item) => {
         setActive(item.id)
@@ -46,10 +54,23 @@ function Navigation({ active, setActive, setIsAuthenticated, openProfilePanel  }
     
     return (
         <NavStyled>
-            <div className="user-con" onClick={() => setShowDropdown(!showDropdown)}>
+            <div className="user-con">
                 <img src={displayUser?.avatar || avatar} alt="avatar" />
                 <div className="text">
                     <h2>{displayUser?.displayName || 'Khách'}</h2>
+                </div>
+                <div className="notification-wrapper">
+                    <div className="notification-icon" onClick={() => setShowUpcomingDebts(prev => !prev)}>
+                        🔔
+                        {upcomingCount > 0 && (
+                            <span className="notification-count">{upcomingCount}</span>
+                        )}
+                    </div>
+                    {showUpcomingDebts && (
+                        <div className="upcoming-debts-panel">
+                            <UpcomingDebts />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -88,6 +109,7 @@ const NavStyled = styled.nav`
     justify-content: space-between;
     gap: 2rem;
 
+
     .user-con {
         height: 100px;
         display: flex;
@@ -109,6 +131,42 @@ const NavStyled = styled.nav`
 
         h2 {
             color: rgba(34, 34, 96, 1);
+        }
+
+        .notification-wrapper {
+            position: relative;
+            margin-left: auto;
+
+            .notification-icon {
+                font-size: 1.4rem;
+                cursor: pointer;
+                color: #ff4d4f;
+                transition: transform 0.2s;
+
+                &:hover {
+                    transform: scale(1.1);
+                }
+            }
+
+            .upcoming-debts-panel {
+                position: absolute;
+                top: 130%; /* ngay dưới icon */
+                right: 0;
+                z-index: 100;
+                width: 320px;
+            }
+            .notification-count {
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                background: #e74c3c;
+                color: #fff;
+                font-size: 0.7rem;
+                font-weight: bold;
+                padding: 2px 6px;
+                border-radius: 50%;
+                box-shadow: 0 0 0 2px #fff;
+            }
         }
     }
 

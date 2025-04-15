@@ -76,6 +76,7 @@ export const GlobalProvider = ({ children }) => {
         throw new Error(err.response?.data?.message || 'Xác thực 2FA thất bại');
         }
     };
+    
     async function disable2FA(userId) {
         try {
             const response = await fetch(`${BASE_URL}${userId}/disable-2fa`, {

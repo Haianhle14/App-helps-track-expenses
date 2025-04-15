@@ -105,16 +105,21 @@ const Overlay = styled.div`
   justify-content: center;
   z-index: 1000;
 `;
-
 const ModalBox = styled.div`
   background: linear-gradient(135deg, #fff, #e6f7ff);
   padding: 2rem;
   border-radius: 16px;
   width: 500px;
   max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
   position: relative;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
 
   .header h2 {
     margin-bottom: 1rem;
@@ -159,6 +164,7 @@ const ModalBox = styled.div`
     }
   }
 `;
+
 
 const CloseButton = styled.button`
   position: fixed;

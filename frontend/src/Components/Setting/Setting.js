@@ -124,7 +124,7 @@ function Setting() {
                                     </div>
                                     <div className="info-item clickable" onClick={() => is2FAEnabled ? setShowDisable2FAModal(true) : setShowSetup2FA(true)}>
                                         <span className="label">Xác minh 2 bước</span>
-                                        <span className={`${is2FAEnabled ? 'enabled' : 'disabled'}`}>
+                                        <span className={`value ${is2FAEnabled ? 'enabled' : 'disabled'}`}>
                                             {is2FAEnabled ? 'Đã bật' : 'Đang tắt'}
                                         </span>
 
@@ -281,17 +281,17 @@ const SettingStyled = styled.div`
                         color: #222;
                     }
 
-                    .value {
-                        &.enabled {
-                            color: green;
-                            font-weight: 600;
-                        }
-
-                        &.disabled {
-                            color: #999 !important; /* hoặc dùng đỏ nhạt: #cc4b4b */
-                            font-weight: 500;
-                        }
+                    .value.enabled {
+                        color: #28a745; /* xanh lá */
+                        font-weight: 600;
                     }
+
+                    .value.disabled {
+                        color: #dc3545; /* đỏ */
+                        font-weight: 600;
+                    }
+
+
 
                     &.clickable {
                         cursor: pointer;

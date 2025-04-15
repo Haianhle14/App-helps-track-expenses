@@ -338,6 +338,7 @@ async function disable2FA(userId) {
 
     // Xoá thông tin 2FA
     user.twoFactorSecretKey = null;
+    user.require_2fa = false;
     user.sessions = []
 
     await user.save();
