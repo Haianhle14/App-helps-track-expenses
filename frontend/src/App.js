@@ -117,66 +117,72 @@ function App() {
           }}
         />
         <main key={location.pathname}>
-          <Routes>
-            <Route path="/dashboard" element={displayData()} />
-            <Route path="/income" element={displayData()} />
-            <Route path="/expenses" element={displayData()} />
-            <Route path="/debts" element={displayData()} />
-            <Route path="/save" element={displayData()} />
-            <Route path="/setting" element={displayData()} />
-            <Route path="*" element={<Navigate to="/dashboard" />} />
-          </Routes>
+          <div className="scroll-wrapper">
+            <Routes>
+              <Route path="/dashboard" element={displayData()} />
+              <Route path="/income" element={displayData()} />
+              <Route path="/expenses" element={displayData()} />
+              <Route path="/debts" element={displayData()} />
+              <Route path="/save" element={displayData()} />
+              <Route path="/setting" element={displayData()} />
+              <Route path="*" element={<Navigate to="/dashboard" />} />
+            </Routes>
 
-          {/* Hiện modal 2FA nếu cần */}
-          {show2FA && user && (
-            <Require2FA
-              user={user}
-              handleSuccessVerify2FA={handleSuccessVerify2FA}
-            />
-          )}
+            {/* Hiện modal 2FA nếu cần */}
+            {show2FA && user && (
+              <Require2FA
+                user={user}
+                handleSuccessVerify2FA={handleSuccessVerify2FA}
+              />
+            )}
+          </div>
         </main>
 
       </MainLayout>
     </AppStyled>
   )
 }
-
 const AppStyled = styled.div`
-height: 100vh;
-background-image: url(${props => props.bg});
-position: relative;
+  height: 100vh;
+  background-image: url(${props => props.bg});
+  position: relative;
 
-main {
-  flex: 1;
-  background: rgba(252, 246, 249, 0.78);
-  border: 3px solid #FFFFFF;
-  backdrop-filter: blur(4.5px);
-  border-radius: 32px;
+  main {
+    flex: 1;
+    background: rgba(252, 246, 249, 0.78);
+    border: 3px solid #FFFFFF;
+    backdrop-filter: blur(4.5px);
+    border-radius: 32px;
 
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
 
-  padding: 2rem;
-
-  overflow-x: auto;   /* Hiện thanh cuộn ngang nếu tràn */
-  overflow-y: auto;   /* Hiện thanh cuộn dọc nếu tràn */
-
-  /* Optional: hiện thanh cuộn tùy chỉnh */
-  &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    padding: 0; /* Bỏ padding ở đây */
+    overflow: hidden; /* Không scroll ở main */
   }
-  &::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 10px;
+
+  .scroll-wrapper {
+    width: 100%;
+    height: 100%;
+    padding: 2rem;
+    overflow: auto;
+
+    /* Thanh cuộn sát vào góc */
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
   }
-  &::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
-}
-`;
+`
 
 
 export default App

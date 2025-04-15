@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
+import { search } from '../../utils/Icons'
 import History from '../../History/History';
 import { InnerLayout } from '../../styles/Layouts';
 import Chart from '../Chart/Chart';
@@ -10,6 +11,8 @@ import Require2FA from '../../pages/Auth/require-2fa'
 import MonthlySummaryChart from '../Chart/MonthlySummaryChart';
 import ShowFullHistoryModal from '../../History/ShowFullHistoryModal';
 import UpcomingDebts from '../../History/UpcomingDebts'
+import SearchTransactionModal from '../../History/SearchTransactionModal';
+
 function Dashboard() {
     const {
         user, is2FAVerified, setIs2FAVerified,
@@ -19,6 +22,8 @@ function Dashboard() {
 
     const [showExpensesList, setShowExpensesList] = useState(false);
     const [showFullHistory, setShowFullHistory] = useState(false);
+    const [showSearchModal, setShowSearchModal] = useState(false);
+
 
 
     useEffect(() => {
@@ -89,7 +94,18 @@ function Dashboard() {
                             </div>
                         </div>
                         <div className="history-con">
-                            <History onClickViewAll={() => setShowFullHistory(true)} />
+                            <div className="history-box">
+                                <History onClickViewAll={() => setShowFullHistory(true)} />
+                                <div 
+                                    className="search-transaction"
+                                    onClick={() => setShowSearchModal(true)}
+                                    title="Tìm kiếm giao dịch"
+                                >
+                                    <span className="icon">{search}</span>
+                                    <span className="label">Tìm kiếm giao dịch</span>
+                                </div>
+                            </div>
+
                             <h2 className="salary-title">Min <span>Thu nhập</span> Max</h2>
                             <div className="salary-item">
                                 <p>{Math.min(...incomes.map(item => item.amount))}đ</p>
@@ -101,6 +117,7 @@ function Dashboard() {
                                 <p>{Math.max(...expenses.map(item => item.amount))}đ</p>
                             </div>
                         </div>
+
                         <div className="pie-chart-con">
                             <div className="pie-chart-item">
                                 <PieChart totalLoaned={totalLoaned} totalBorrowed={totalBorrowed} />
@@ -117,6 +134,9 @@ function Dashboard() {
                 {showFullHistory && (
                 <ShowFullHistoryModal onClose={() => setShowFullHistory(false)} />)
                 }
+                {showSearchModal && (
+                    <SearchTransactionModal onClose={() => setShowSearchModal(false)} />
+                )}
             </InnerLayout>
         </DashboardStyled>
     );
@@ -128,9 +148,9 @@ const DashboardStyled = styled.div`
     flex-direction: column;
 
     .dashboard-content {
-        overflow-y: auto;
-        height: calc(100vh - 80px);
-        padding-right: 5px;
+        overflow-y: hidden;
+        height: auto;
+        padding-right: 0;
 
         &::-webkit-scrollbar {
             width: 8px;
@@ -259,22 +279,29 @@ const DashboardStyled = styled.div`
 
         .history-con {
             grid-column: span 1;
+            overflow: hidden;
 
-            h2 {
-                margin: 0;
+            .history-box {
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
+                flex-direction: column;
+                gap: 1rem;
+                padding-bottom: 1rem;
             }
 
             .salary-title {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                text-align: center;
                 font-size: 1.2rem;
                 margin: 1rem 0;
+                font-weight: 600;
 
                 span {
-                    font-size: 1.8rem;
+                    font-size: 1rem;
+                    font-weight: 700;
                 }
             }
+
 
             .salary-item {
                 background: #FCF6F9;
@@ -288,10 +315,44 @@ const DashboardStyled = styled.div`
 
                 p {
                     font-weight: 600;
-                    font-size: 1.4rem;
+                    font-size: 1rem;
+                }
+            }
+
+            .search-transaction {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 0.5rem;
+                padding: 0.6rem 1rem;
+                background: #5fd2c9;
+                border: 2px solid #FFFFFF;
+                box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.05);
+                border-radius: 12px;
+                font-size: 1rem;
+                font-weight: 500;;
+                color: #fff;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                width: 100%;
+
+                .icon {
+                    font-size: 1.2rem;
+                    color: var(--color-primary);
+                }
+
+                .label {
+                    font-size: 1rem;
+                }
+
+                &:hover {
+                    background-color: #f3e8f5;
+                    transform: translateY(-1px);
+                    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
                 }
             }
         }
+
 
         .pie-chart-con {
             grid-column: span 3;

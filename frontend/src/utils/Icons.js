@@ -31,3 +31,4 @@ export const circle = <i className="fa-solid fa-circle-dot"></i>;
 export const handshake = <i className="fa-solid fa-handshake"></i>;
 export const clipboard =  <i className="fa-solid fa-clipboard"></i>;
 export const clock =  <i className="fa-solid fa-clock-rotate-left"></i>;
+export const search = <i className="fa-solid fa-magnifying-glass"></i>;

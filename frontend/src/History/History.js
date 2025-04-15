@@ -4,8 +4,6 @@ import { useGlobalContext } from '../context/globalContext';
 
 function History({ onClickViewAll }) {
     const { transactionHistory } = useGlobalContext();
-
-    // Kiểm tra nếu transactionHistory là một hàm, thì gọi nó, nếu không, dùng trực tiếp
     const history = typeof transactionHistory === 'function' ? transactionHistory() : transactionHistory;
 
     return (

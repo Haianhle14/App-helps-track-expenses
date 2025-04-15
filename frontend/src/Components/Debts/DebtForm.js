@@ -165,42 +165,90 @@ function DebtForm() {
     );
 }
 
+
 const FormStyled = styled.form`
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
+    width: 100%;
 
-    input, textarea, select {
-        font-family: inherit;
-        font-size: inherit;
-        outline: none;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        border: 2px solid #fff;
-        background: transparent;
-        resize: none;
-        box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-        color: rgba(34, 34, 96, 0.9);
-        &::placeholder {
-            color: rgba(34, 34, 96, 0.4);
-        }
+    .error {
+        color: red;
+        font-size: 1rem;
+        text-align: center;
     }
 
     .input-control {
-        input {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 2px solid #fff;
+            background: #f5f5f5;
+            resize: none;
+            box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.05);
+            color: rgba(34, 34, 96, 0.9);
+
+            &::placeholder {
+                color: rgba(34, 34, 96, 0.4);
+            }
+        }
+
+        .react-datepicker-wrapper {
             width: 100%;
         }
     }
 
     .submit-btn {
+        display: flex;
+        justify-content: center;
+
         button {
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 30px;
+            background: var(--color-accent);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
             box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+
             &:hover {
-                background: linear-gradient(to right, #6dd5ed, #2193b0)!important;
+                background: linear-gradient(to right, #6dd5ed, #2193b0);
             }
         }
     }
-`
+
+    @media (max-width: 480px) {
+        .input-control {
+            input,
+            textarea,
+            select {
+                font-size: 0.9rem;
+                padding: 0.5rem 0.8rem;
+            }
+        }
+
+        .submit-btn {
+            button {
+                font-size: 0.9rem;
+                padding: 0.6rem 1.5rem;
+            }
+        }
+    }
+`;
+
 
 export default DebtForm

@@ -44,14 +44,15 @@ function Income() {
         </IncomeStyled>
     )
 }
-
 const IncomeStyled = styled.div`
-    display: flex;
-    overflow: auto;
+    width: 100%;
+    overflow-x: hidden;
+
     h1 {
         font-size: 2.5rem;
     }
-    .total-income{
+
+    .total-income {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -63,17 +64,27 @@ const IncomeStyled = styled.div`
         margin: 1rem 0;
         font-size: 2rem;
         gap: .5rem;
-        span{
+
+        span {
             font-size: 2.5rem;
             font-weight: 800;
             color: var(--color-green);
         }
     }
-    .income-content{
+
+    .income-content {
         display: flex;
+        flex-wrap: wrap;
         gap: 2rem;
-        .incomes{
+
+        .form-container {
             flex: 1;
+            min-width: 300px;
+        }
+
+        .incomes {
+            flex: 2;
+            min-width: 0;
         }
     }
 `;

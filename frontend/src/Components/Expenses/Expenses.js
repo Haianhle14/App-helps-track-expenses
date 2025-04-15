@@ -42,18 +42,17 @@ function Expenses() {
         </ExpenseStyled>
     )
 }
+
 const ExpenseStyled = styled.div`
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
+    width: 100%;
+    overflow-x: hidden;
 
     h1 {
-        position: static;
         font-size: 2.5rem;
+        text-align: center;
+
         @media (max-width: 768px) {
-            position: static;
-            top: unset;
-            background: none;
+            font-size: 2rem;
         }
     }
 
@@ -68,7 +67,7 @@ const ExpenseStyled = styled.div`
         padding: 1rem;
         margin: 1rem 0;
         font-size: 2rem;
-        gap: .5rem;
+        gap: 0.5rem;
 
         span {
             font-size: 2.5rem;
@@ -79,14 +78,20 @@ const ExpenseStyled = styled.div`
 
     .income-content {
         display: flex;
+        flex-wrap: wrap;
         gap: 2rem;
 
-        .incomes {
+        .form-container {
             flex: 1;
+            min-width: 280px;
+        }
+
+        .incomes {
+            flex: 2;
+            min-width: 0;
         }
     }
 `;
-
 
 
 export default Expenses

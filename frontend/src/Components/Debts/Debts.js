@@ -13,7 +13,7 @@ function Debts() {
         getDebts();
     }, [getDebts]);
 
-    const { totalBorrowDebt, totalLendDebt } = totalDebts();  // Gọi hàm totalDebts và lấy tổng nợ vay và cho vay
+    const { totalBorrowDebt, totalLendDebt } = totalDebts();
 
     return (
         <DebtStyled>
@@ -62,18 +62,30 @@ function Debts() {
 }
 
 const DebtStyled = styled.div`
-    height: 100vh;
-    overflow-y: auto;
+    width: 100%;
     overflow-x: hidden;
+    padding-bottom: 3rem;
+
+    h1 {
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 2rem;
+
+        @media (max-width: 768px) {
+            font-size: 2rem;
+        }
+    }
 
     .total-debt {
         display: flex;
         justify-content: space-between;
         gap: 2rem;
         margin-bottom: 2rem;
+        flex-wrap: wrap;
 
         .debt-card {
             flex: 1;
+            min-width: 250px;
             background: #ffffff;
             padding: 2rem;
             border-radius: 15px;
@@ -86,14 +98,22 @@ const DebtStyled = styled.div`
 
             h2 {
                 margin: 0;
-                font-size: 1.8rem;
+                font-size: 1.6rem;
                 color: #333;
+
+                @media (max-width: 480px) {
+                    font-size: 1.4rem;
+                }
             }
 
             span {
-                font-size: 2.5rem;
+                font-size: 2.2rem;
                 font-weight: 700;
                 color: #4caf50;
+
+                @media (max-width: 480px) {
+                    font-size: 1.8rem;
+                }
             }
 
             &:first-child {
@@ -109,10 +129,11 @@ const DebtStyled = styled.div`
     .debt-content {
         display: flex;
         gap: 2rem;
-        justify-content: space-between;
+        flex-wrap: wrap;
 
         .form-container {
-            flex: 0.3;
+            flex: 1;
+            min-width: 280px;
             background: #fff;
             padding: 2rem;
             border-radius: 10px;
@@ -120,17 +141,14 @@ const DebtStyled = styled.div`
         }
 
         .debts {
-            flex: 1;
+            flex: 2;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            min-width: 0;
         }
     }
-
-    h1 {
-        font-size: 2.5rem;
-        margin-bottom: 2rem;
-    }
 `;
+
 
 export default Debts;

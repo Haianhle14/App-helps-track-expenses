@@ -111,51 +111,107 @@ function ExpenseForm() {
     )
 }
 
+
 const ExpenseFormStyled = styled.form`
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    input, textarea, select{
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+
+    .error {
+        color: red;
+        font-size: 0.9rem;
+        margin-top: -1rem;
+        margin-bottom: -0.5rem;
+    }
+
+    input,
+    textarea,
+    select {
         font-family: inherit;
-        font-size: inherit;
+        font-size: 1rem;
+        width: 100%;
         outline: none;
         border: none;
-        padding: .5rem 1rem;
-        border-radius: 5px;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
         border: 2px solid #fff;
-        background: transparent;
+        background: #fff;
         resize: none;
         box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
         color: rgba(34, 34, 96, 0.9);
-        &::placeholder{
+        word-break: break-word;
+        overflow-wrap: break-word;
+
+        &::placeholder {
             color: rgba(34, 34, 96, 0.4);
-        }
-    }
-    .input-control{
-        input{
-            width: 100%;
         }
     }
 
-    .selects{
+    .input-control {
+        width: 100%;
+
+        input,
+        textarea {
+            width: 100%;
+        }
+
+        textarea {
+            min-height: 80px;
+        }
+
+        .react-datepicker-wrapper {
+            width: 100%;
+
+            input {
+                width: 100%;
+            }
+        }
+    }
+
+    .selects {
         display: flex;
         justify-content: flex-end;
-        select{
-            color: rgba(34, 34, 96, 0.4);
-            &:focus, &:active{
+        select {
+            width: 100%;
+            background: #fff;
+            color: rgba(34, 34, 96, 0.6);
+            &:focus,
+            &:active {
                 color: rgba(34, 34, 96, 1);
             }
         }
     }
 
-    .submit-btn{
-        button{
+    .submit-btn {
+        display: flex;
+        justify-content: flex-end;
+
+        button {
+            white-space: nowrap;
             box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-            &:hover{
+            &:hover {
                 background: var(--color-green) !important;
             }
         }
     }
+
+    @media (max-width: 600px) {
+        gap: 1rem;
+
+        input,
+        textarea,
+        select {
+            font-size: 0.95rem;
+            padding: 0.5rem 0.8rem;
+        }
+
+        .submit-btn {
+            justify-content: center;
+        }
+    }
 `;
+
 
 export default ExpenseForm

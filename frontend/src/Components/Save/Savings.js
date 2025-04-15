@@ -30,25 +30,20 @@ function Saving() {
         <SavingStyle>
             <h1>Mục Tiêu Tiết kiệm</h1>
 
-            {/* Form thêm mục tiêu */}
             <SavingGoalForm onAdd={addSaving} />
-
-            {/* Kiểm tra danh sách */}
-            <div>
+            <div className="scroll-wrapper">
                 {savings && savings.length > 0 ? (
-                    savings.map((saving, index) => {
-                        return (
-                            <SavingItem
-                                key={saving._id || saving.id} 
-                                _id={saving._id || saving.id} 
-                                goal={saving.goal}
-                                targetAmount={saving.targetAmount}
-                                currentAmount={saving.currentAmount}
-                                updateProgress={updateSavingProgress}
-                                deleteItem={deleteSaving}
-                            />
-                        )
-                    })
+                    savings.map((saving) => (
+                        <SavingItem
+                            key={saving._id || saving.id} 
+                            _id={saving._id || saving.id} 
+                            goal={saving.goal}
+                            targetAmount={saving.targetAmount}
+                            currentAmount={saving.currentAmount}
+                            updateProgress={updateSavingProgress}
+                            deleteItem={deleteSaving}
+                        />
+                    ))
                 ) : (
                     <p>Chưa có mục tiêu tiết kiệm nào.</p>
                 )}
@@ -56,16 +51,18 @@ function Saving() {
         </SavingStyle>
     )
 }
-
 const SavingStyle = styled.div`
-    max-width: 900px;
-    margin: 0 auto;
+  max-width: 900px;
+  margin: 0 auto;
 
-    h1 {
-        font-size: 2.5rem;
-        text-align: center;
-    }
-`;
+  h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
 
 
-export default Saving;
+`
+
+
+export default Saving

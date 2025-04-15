@@ -64,12 +64,9 @@ export const GlobalProvider = ({ children }) => {
         try {
         const { data } = await axios.put(`${BASE_URL}${userId}/verify_2fa`, { userId, otpToken });
     
-        // Lưu token mới vào localStorage
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         setUser(data);
-    
-        // Lưu trạng thái 2FA đã xác minh
         localStorage.setItem('is2FAVerified', true)
     
         setIs2FAVerified(true);
@@ -279,20 +276,17 @@ export const GlobalProvider = ({ children }) => {
     
 
     const totalDebts = () => {
-        // Tính tổng số nợ mà người dùng phải trả (nợ vay)
         const totalBorrowDebt = debts
-            .filter(debt => debt.type === 'borrow')  // Lọc ra nợ vay
+            .filter(debt => debt.type === 'borrow')
             .reduce((acc, debt) => acc + debt.amount, 0);
     
-        // Tính tổng số tiền mà người dùng đã cho vay (nợ cho vay)
         const totalLendDebt = debts
-            .filter(debt => debt.type === 'lend')  // Lọc ra nợ cho vay
+            .filter(debt => debt.type === 'lend')
             .reduce((acc, debt) => acc + debt.amount, 0);
-    
-        // Trả về cả tổng nợ vay và tổng tiền cho vay
+
         return {
-            totalBorrowDebt,  // Tổng nợ vay (số tiền bạn phải trả)
-            totalLendDebt,    // Tổng nợ cho vay (số tiền bạn đã cho vay)
+            totalBorrowDebt,
+            totalLendDebt,
         };
     };
     
@@ -372,51 +366,100 @@ export const GlobalProvider = ({ children }) => {
         }
     }
     
-    // --- TỔNG HỢP ---
+    // --- TỔNG HỢP ---    
+    const filterTransactions = ({ keyword = '', type = '', startDate, endDate }) => {
+        let history = recentTransactions();
+    
+
+        if (keyword) {
+            const lowerKeyword = keyword.toLowerCase();
+            history = history.filter(txn =>
+                (txn.title?.toLowerCase().includes(lowerKeyword) ||
+                txn.description?.toLowerCase().includes(lowerKeyword) ||
+                txn.goal?.toLowerCase().includes(lowerKeyword))
+            );
+        }
+    
+
+        if (type) {
+            const normalizedType = type.trim().toLowerCase();
+    
+            const typeMapping = {
+                'thu nhập': 'thu nhập',
+                'income': 'thu nhập',
+                'chi tiêu': 'chi tiêu',
+                'expense': 'chi tiêu',
+                'cho vay': 'cho vay',
+                'lend': 'cho vay',
+                'vay': 'vay',
+                'borrow': 'vay',
+                'tiết kiệm': 'mục tiêu',
+                'saving': 'mục tiêu',
+                'mục tiêu': 'mục tiêu',
+            };
+    
+
+            const mappedType = typeMapping[normalizedType];
+            if (mappedType) {
+                history = history.filter(txn => txn.type?.toLowerCase() === mappedType.toLowerCase());
+            }
+        }
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+    
+            history = history.filter(txn => {
+                const rawDate = txn.createdAt ?? txn.date ?? txn.dueDate;
+                const date = rawDate instanceof Date ? rawDate : new Date(rawDate);
+                if (isNaN(date)) {
+                    console.warn("Ngày không hợp lệ trong giao dịch:", txn);
+                    return false;
+                }
+                return date >= start && date <= end;
+            });
+        }
+        return history;
+    };
+    
     const getMonthlySummary = () => {
         const summary = {};
       
-        // Kiểm tra xem các mảng dữ liệu có hợp lệ hay không
         if (!Array.isArray(incomes) || !Array.isArray(expenses) || !Array.isArray(savings) || !Array.isArray(debts)) {
-          return summary; // Trả về một đối tượng rỗng nếu không có dữ liệu hợp lệ
+          return summary;
         }
       
-        // Xử lý dữ liệu từ incomes
+        const formatMonth = (date) => {
+          const d = new Date(date);
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+        };
+      
         incomes.forEach(income => {
-          const month = new Date(income?.date).toLocaleString('default', { month: 'short', year: 'numeric' });
-          if (!month) return; // Nếu tháng không hợp lệ, bỏ qua
+          const month = formatMonth(income?.date);
           if (!summary[month]) summary[month] = { income: 0, expense: 0, saving: 0, lend: 0, borrow: 0 };
-          summary[month].income += income?.amount || 0; // Sử dụng giá trị mặc định 0 nếu amount là undefined
+          summary[month].income += income?.amount || 0;
         });
       
-        // Xử lý dữ liệu từ expenses
         expenses.forEach(expense => {
-          const month = new Date(expense?.date).toLocaleString('default', { month: 'short', year: 'numeric' });
-          if (!month) return; // Nếu tháng không hợp lệ, bỏ qua
+          const month = formatMonth(expense?.date);
           if (!summary[month]) summary[month] = { income: 0, expense: 0, saving: 0, lend: 0, borrow: 0 };
-          summary[month].expense += expense?.amount || 0; // Sử dụng giá trị mặc định 0 nếu amount là undefined
+          summary[month].expense += expense?.amount || 0;
         });
       
-      
-        // Xử lý dữ liệu từ debts
         debts.forEach(debt => {
-          const month = new Date(debt?.dueDate).toLocaleString('default', { month: 'short', year: 'numeric' });
-          if (!month) return; // Nếu tháng không hợp lệ, bỏ qua
+          const month = formatMonth(debt?.dueDate);
           if (!summary[month]) summary[month] = { income: 0, expense: 0, saving: 0, lend: 0, borrow: 0 };
       
-          // Cập nhật số tiền cho vay hoặc nợ vay
           if (debt.type === 'lend') {
-            summary[month].lend += debt?.amount || 0; // Dùng 0 nếu amount không hợp lệ
+            summary[month].lend += debt?.amount || 0;
           } else if (debt.type === 'borrow') {
-            summary[month].borrow += debt?.amount || 0; // Dùng 0 nếu amount không hợp lệ
+            summary[month].borrow += debt?.amount || 0;
           }
         });
       
         return summary;
-      };
+    };
       
-      
-
     const totalExpenses = () => {
         const expenseSum = expenses.reduce((acc, expense) => acc + expense.amount, 0)
         const savingSpent = savings.reduce((acc, saving) => acc + saving.currentAmount, 0)
@@ -425,6 +468,35 @@ export const GlobalProvider = ({ children }) => {
 
     const totalBalance = () => totalIncome() - totalExpenses()
 
+    const recentTransactions = () => {
+    return [
+        ...incomes.map(i => ({
+            ...i,
+            type: 'Thu nhập',
+            createdAt: new Date(i.createdAt || i.date)
+        })),
+        ...expenses.map(e => ({
+            ...e,
+            type: 'Chi tiêu',
+            createdAt: new Date(e.createdAt || e.date)
+        })),
+        ...debts.map(d => ({
+            ...d,
+            type: d.type === 'lend' ? 'cho vay' : d.type === 'borrow' ? 'vay' : 'vay, cho vay',
+            title: d.type === 'lend' ? 'Cho vay' : d.type === 'borrow' ? 'Vay' : d.type,
+            createdAt: new Date(d.createdAt || d.date || d.dueDate)
+        })),
+        ...savings.map(s => ({
+            ...s,
+            type: 'Mục tiêu',
+            title: s.goal,
+            createdAt: new Date(s.updatedAt || s.createdAt)
+        })),
+        ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    };
+
+
+    // Lấy 3 giao dịch gần nhất để hiển thị mặc định
     const transactionHistory = () => {
         const history = [
             ...incomes.map(i => ({ ...i, type: 'Thu nhập' })),
@@ -438,7 +510,7 @@ export const GlobalProvider = ({ children }) => {
         ]
         return history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 3);
     }
-
+    
     const getUpcomingDebtsReminder = (daysBefore = 7) => {
         if (!Array.isArray(debts)) return [];
     
@@ -512,7 +584,7 @@ export const GlobalProvider = ({ children }) => {
                 totalBalance, transactionHistory, getMonthlySummary, savingsProgress,
                 error, setError,
                 get2FAQrCode, setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified, disable2FA,
-                getUpcomingDebtsReminder
+                getUpcomingDebtsReminder, filterTransactions, recentTransactions
             }}
         >
             {children}
