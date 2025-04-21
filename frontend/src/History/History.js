@@ -30,7 +30,7 @@ function History({ onClickViewAll }) {
                         </p>
 
                         <p style={{ color }}>
-                            {`${sign}${amount <= 0 ? 0 : amount}`}
+                            {`${sign}${(amount <= 0 ? 0 : amount).toLocaleString('vi-VN')}`}
                         </p>
                     </div>
                 );

@@ -43,7 +43,7 @@ function SavingItem({ _id, goal, targetAmount, currentAmount, updateProgress, de
                     <h5>Mục tiêu: {goal}</h5>
                     <div className="inner-content">
                         <div className="text">
-                            <p>{money} {current}/{targetAmount}đ</p>
+                            <p>{money} {Number(current).toLocaleString('vi-VN')}/{Number(targetAmount).toLocaleString('vi-VN')}đ</p>
                             <p>Tiến độ: {progressPercentage}%</p>
                         </div>
                         <div className="btn-con">

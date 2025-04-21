@@ -44,7 +44,7 @@ function Dashboard() {
 
     const totalLoaned = debts.filter(debt => debt.type === 'lend').reduce((acc, curr) => acc + curr.amount, 0);
     const totalBorrowed = debts.filter(debt => debt.type === 'borrow').reduce((acc, curr) => acc + curr.amount, 0);
-    const { totalCurrent, totalTarget } = savingsProgress();
+    const { totalCurrent } = savingsProgress();
     const totalSavingsProgress = totalCurrent;
 
     const toggleExpensesList = () => {
@@ -62,22 +62,22 @@ function Dashboard() {
                             <div className="amount-con">
                                 <div className="income">
                                     <h2>Tổng thu nhập</h2>
-                                    <p>{totalIncome()}đ</p>
+                                    <p>{totalIncome().toLocaleString('vi-VN')}đ</p>
                                 </div>
                                 <div className="expense" onClick={toggleExpensesList}>
                                     <h2>Tổng chi tiêu</h2>
-                                    <p>{totalExpenses()}đ</p>
+                                    <p>{totalExpenses().toLocaleString('vi-VN')}đ</p>
                                     {showExpensesList && (
                                         <div className="expenses-list">
                                             <h3>Danh sách chi tiêu</h3>
                                             <ul>
                                                 {expenses.map((expense, index) => (
                                                     <li key={index}>
-                                                        {expense.title}: {expense.amount}đ
+                                                        {expense.title}: {expense.amount.toLocaleString('vi-VN')}đ
                                                     </li>
                                                 ))}
                                                 <li>
-                                                    <strong>Tiền tiết kiệm:</strong> {totalSavingsProgress}đ
+                                                    <strong>Tiền tiết kiệm:</strong> {totalSavingsProgress.toLocaleString('vi-VN')}đ
                                                 </li>
                                             </ul>
                                         </div>
@@ -85,7 +85,7 @@ function Dashboard() {
                                 </div>
                                 <div className="balance">
                                     <h2>Tổng số dư</h2>
-                                    <p>{totalBalance()}đ</p>
+                                    <p>{totalBalance().toLocaleString('vi-VN')}đ</p>
                                 </div>
                             </div>
                         </div>
@@ -104,13 +104,13 @@ function Dashboard() {
 
                             <h2 className="salary-title">Min <span>Thu nhập</span> Max</h2>
                             <div className="salary-item">
-                                <p>{Math.min(...incomes.map(item => item.amount))}đ</p>
-                                <p>{Math.max(...incomes.map(item => item.amount))}đ</p>
+                                <p>{Math.min(...incomes.map(item => item.amount)).toLocaleString('vi-VN')}đ</p>
+                                <p>{Math.max(...incomes.map(item => item.amount)).toLocaleString('vi-VN')}đ</p>
                             </div>
                             <h2 className="salary-title">Min <span>Chi tiêu</span> Max</h2>
                             <div className="salary-item">
-                                <p>{Math.min(...expenses.map(item => item.amount))}đ</p>
-                                <p>{Math.max(...expenses.map(item => item.amount))}đ</p>
+                                <p>{Math.min(...expenses.map(item => item.amount)).toLocaleString('vi-VN')}đ</p>
+                                <p>{Math.max(...expenses.map(item => item.amount)).toLocaleString('vi-VN')}đ</p>
                             </div>
                         </div>
 
@@ -119,9 +119,9 @@ function Dashboard() {
                                 <PieChart totalLoaned={totalLoaned} totalBorrowed={totalBorrowed} />
                             </div>
                             <div className="savings-pie-chart-item">
-                                <SavingsPieChart totalCurrent={totalCurrent} totalTarget={totalTarget} />
+                                <SavingsPieChart />
+                            </div>
                         </div>
-                    </div>
                     <div className="monthly-summary-chart-con">
                         <MonthlySummaryChart />
                     </div>

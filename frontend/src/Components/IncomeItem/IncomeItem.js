@@ -67,7 +67,7 @@ function IncomeItem({
                     <h5>{title}</h5>
                     <div className="inner-content">
                         <div className="text">
-                            <p>{money}{amount}đ</p>
+                            <p>{money}{amount.toLocaleString('vi-VN')}đ</p>
                             <p>{calender} {dateFormat(date)}</p>
                             <p>{comment} {description}</p>
                         </div>

@@ -44,7 +44,7 @@ function DebtItem({
                     <h5>{type === 'borrow' ? `Vay từ ${lender}` : `Cho ${borrower} vay`}</h5>
                     <div className="inner-content">
                         <div className="text">
-                            <p>{money}{amount}đ</p>
+                            <p>{money}{Number(amount).toLocaleString('vi-VN')}đ</p>
                             <p>{calender}{dateFormat(dueDate)}</p>
                             <p>{comment}{description}</p>
                         </div>

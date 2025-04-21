@@ -1,41 +1,75 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useGlobalContext } from '../../context/globalContext';
-import { InnerLayout } from '../../styles/Layouts';
-import IncomeItem from '../IncomeItem/IncomeItem';
-import ExpenseForm from './ExpenseForm';
+import { useGlobalContext } from '../../context/globalContext'
+import { InnerLayout } from '../../styles/Layouts'
+import IncomeItem from '../IncomeItem/IncomeItem'
+import ExpenseForm from './ExpenseForm'
 
 function Expenses() {
-    const {expenses, getExpenses, deleteExpense, totalExpenses} = useGlobalContext()
+    const { expenses, getExpenses, deleteExpense, totalExpenses } = useGlobalContext()
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 3
 
-    useEffect(() =>{
+    useEffect(() => {
         getExpenses()
     }, [getExpenses])
+
+    // 👉 Sắp xếp chi tiêu theo ngày giảm dần
+    const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date))
+    const indexOfLastItem = currentPage * itemsPerPage
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage
+    const currentItems = sortedExpenses.slice(indexOfFirstItem, indexOfLastItem)
+    const totalPages = Math.ceil(expenses.length / itemsPerPage)
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber)
+    }
+
     return (
         <ExpenseStyled>
             <InnerLayout>
                 <h1>Quản Lý Chi Tiêu</h1>
-                <h2 className="total-income">Tổng chi tiêu: <span>{totalExpenses()}đ</span></h2>
+                <h2 className="total-income">
+                    Tổng chi tiêu: <span>{totalExpenses().toLocaleString('vi-VN')}đ</span>
+                </h2>
+
                 <div className="income-content">
                     <div className="form-container">
                         <ExpenseForm />
                     </div>
                     <div className="incomes">
-                        {expenses.map((income) => {
-                            const {_id, title, amount, date, category, description, type} = income;
-                            return <IncomeItem
-                                key={_id}
-                                id={_id} 
-                                title={title} 
-                                description={description} 
-                                amount={amount} 
-                                date={date} 
-                                type={type}
-                                category={category} 
-                                indicatorColor="var(--color-green)"
-                                deleteItem={deleteExpense}
-                            />
+                        {currentItems.map((income) => {
+                            const { _id, title, amount, date, category, description, type } = income
+                            return (
+                                <IncomeItem
+                                    key={_id}
+                                    id={_id}
+                                    title={title}
+                                    description={description}
+                                    amount={amount}
+                                    date={date}
+                                    type={type}
+                                    category={category}
+                                    indicatorColor="var(--color-green)"
+                                    deleteItem={deleteExpense}
+                                />
+                            )
                         })}
+
+                        {/* 👉 PHÂN TRANG */}
+                        {totalPages > 1 && (
+                            <div className="pagination">
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <button
+                                        key={index + 1}
+                                        className={currentPage === index + 1 ? 'active' : ''}
+                                        onClick={() => handlePageChange(index + 1)}
+                                    >
+                                        {index + 1}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </InnerLayout>
@@ -90,8 +124,33 @@ const ExpenseStyled = styled.div`
             flex: 2;
             min-width: 0;
         }
-    }
-`;
 
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+
+            button {
+                background-color: #fff;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 0.3rem 0.8rem;
+                cursor: pointer;
+                transition: background 0.3s ease;
+
+                &.active {
+                    background-color: var(--color-green);
+                    color: white;
+                    font-weight: bold;
+                }
+
+                &:hover {
+                    background-color: #f0f0f0;
+                }
+            }
+        }
+    }
+`
 
 export default Expenses

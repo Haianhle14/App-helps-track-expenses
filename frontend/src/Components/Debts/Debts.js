@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
 import { InnerLayout } from '../../styles/Layouts';
@@ -9,11 +9,23 @@ import DebtForm from './DebtForm';
 function Debts() {
     const { debts, getDebts, deleteDebt, totalDebts } = useGlobalContext();
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3;
+
     useEffect(() => {
         getDebts();
     }, [getDebts]);
 
     const { totalBorrowDebt, totalLendDebt } = totalDebts();
+
+    // Sắp xếp theo dueDate mới nhất
+    const sortedDebts = [...debts].sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+
+    // Xử lý phân trang
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = sortedDebts.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(debts.length / itemsPerPage);
 
     return (
         <DebtStyled>
@@ -38,7 +50,7 @@ function Debts() {
                         <DebtForm />
                     </div>
                     <div className="debts">
-                        {debts.map((debt) => {
+                        {currentItems.map((debt) => {
                             const { _id, type, amount, borrower, lender, dueDate, description } = debt;
                             return (
                                 <DebtItem
@@ -54,6 +66,21 @@ function Debts() {
                                 />
                             );
                         })}
+
+                        {/* Phân trang */}
+                        {totalPages > 1 && (
+                            <div className="pagination">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <button
+                                        key={page}
+                                        onClick={() => setCurrentPage(page)}
+                                        className={page === currentPage ? 'active' : ''}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </InnerLayout>
@@ -70,10 +97,6 @@ const DebtStyled = styled.div`
         font-size: 2.5rem;
         text-align: center;
         margin-bottom: 2rem;
-
-        @media (max-width: 768px) {
-            font-size: 2rem;
-        }
     }
 
     .total-debt {
@@ -90,30 +113,18 @@ const DebtStyled = styled.div`
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             text-align: center;
 
             h2 {
                 margin: 0;
                 font-size: 1.6rem;
                 color: #333;
-
-                @media (max-width: 480px) {
-                    font-size: 1.4rem;
-                }
             }
 
             span {
                 font-size: 2.2rem;
                 font-weight: 700;
-                color: #4caf50;
-
-                @media (max-width: 480px) {
-                    font-size: 1.8rem;
-                }
+                color: var(--color-green);
             }
 
             &:first-child {
@@ -146,9 +157,33 @@ const DebtStyled = styled.div`
             flex-direction: column;
             gap: 1.5rem;
             min-width: 0;
+
+            .pagination {
+                display: flex;
+                justify-content: center;
+                gap: 0.5rem;
+                margin-top: 1rem;
+
+                button {
+                    padding: 0.4rem 1rem;
+                    border: none;
+                    border-radius: 5px;
+                    background-color: #e0e0e0;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+
+                    &.active {
+                        background-color: var(--color-green);
+                        color: white;
+                    }
+
+                    &:hover {
+                        background-color: #aed581;
+                    }
+                }
+            }
         }
     }
 `;
-
 
 export default Debts;
