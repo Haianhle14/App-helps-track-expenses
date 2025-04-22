@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { dateFormat } from '../../utils/dateFormat'
 import {
-    bitcoin, book, calender, card, circle, clothing, comment,
-    food, freelance, medical, money, piggy, stocks, takeaway,
-    trash, tv, users, yt
+    bitcoin, diversity1Icon, calender, card, localMallIconIcon, comment,
+    food, freelance, medicationLiquidIcon, money, stocks,
+    trash, sportsEsportsIcon, users, yt, descriptionIcon, directionsWalkIcon,  moreHorizIcon
 } from '../../utils/Icons'
 import Button from '../Button/Button'
 import ConfirmDeleteModal from '../../utils/ConfirmModal'
@@ -32,24 +32,25 @@ function IncomeItem({
             case 'bitcoin': return bitcoin
             case 'bank': return card
             case 'youtube': return yt
-            case 'other': return piggy
-            default: return ''
+            case 'other': return moreHorizIcon
+            default: return moreHorizIcon
         }
     }
 
     const expenseCatIcon = () => {
         switch (category) {
-            case 'education': return book
-            case 'groceries': return food
-            case 'health': return medical
-            case 'subscriptions': return tv
-            case 'takeaways': return takeaway
-            case 'clothing': return clothing
-            case 'travelling': return freelance
-            case 'other': return circle
-            default: return ''
+            case 'Hóa đơn & Tiện ích': return descriptionIcon
+            case 'Mua sắm': return localMallIconIcon
+            case 'Giải trí': return sportsEsportsIcon
+            case 'Gia đình': return diversity1Icon
+            case 'Sức khỏe': return medicationLiquidIcon
+            case 'Ăn uống': return food
+            case 'Di chuyển': return directionsWalkIcon
+            case 'Khác': return moreHorizIcon
+            default: return moreHorizIcon
         }
     }
+    
 
     const handleDelete = () => {
         deleteItem(id)

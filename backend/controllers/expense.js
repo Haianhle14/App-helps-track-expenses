@@ -2,14 +2,19 @@ const ExpenseModel = require('../models/ExpenseModel')
 
 // Thêm chi tiêu mới
 exports.addExpense = async (req, res) => {
-  const { title, amount, category, description, date, userId } = req.body
+  let { title, subCategory, amount, category, description, date, userId } = req.body
 
   try {
+    // Ưu tiên title nếu có, nếu không dùng subCategory
+    title = title || subCategory
+
     if (!title || !category || !date || !userId) {
       return res.status(400).json({ message: 'Vui lòng nhập đầy đủ các trường bắt buộc!' })
     }
 
-    if (typeof amount !== 'number' || amount <= 0) {
+    // Convert amount về number (phòng khi client gửi dạng string)
+    amount = Number(amount)
+    if (isNaN(amount) || amount <= 0) {
       return res.status(400).json({ message: 'Số tiền phải là một số dương!' })
     }
 

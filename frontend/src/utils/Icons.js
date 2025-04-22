@@ -1,3 +1,19 @@
+import DescriptionIcon from '@mui/icons-material/Description';
+import LocalMallIcon from '@mui/icons-material/LocalMall';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import Diversity1Icon from '@mui/icons-material/Diversity1';
+import MedicationLiquidIcon from '@mui/icons-material/MedicationLiquid';
+import DirectionsWalkIcon from '@mui/icons-material/DirectionsWalk';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+
+
+export const moreHorizIcon = <MoreHorizIcon />;
+export const directionsWalkIcon = <DirectionsWalkIcon />;
+export const medicationLiquidIcon = <MedicationLiquidIcon />;
+export const diversity1Icon = <Diversity1Icon />;
+export const sportsEsportsIcon = <SportsEsportsIcon />;
+export const localMallIconIcon = <LocalMallIcon />;
+export const descriptionIcon = <DescriptionIcon />;
 export const dashboard = <i className="fa-solid fa-chart-line"></i>;
 export const transactions = <i className="fa-solid fa-credit-card"></i>;
 export const categories = <i className="fa-solid fa-tags"></i>;

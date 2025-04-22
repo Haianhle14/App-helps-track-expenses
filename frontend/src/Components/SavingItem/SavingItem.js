@@ -6,9 +6,9 @@ import { toast } from 'react-toastify'
 
 function SavingItem({ _id, goal, targetAmount, currentAmount, updateProgress, deleteItem, indicatorColor = "#6dd5ed" }) {
     const [showConfirm, setShowConfirm] = useState(false)
+    const [showUpdateModal, setShowUpdateModal] = useState(false)
     const [current, setCurrent] = useState(currentAmount)
-    
-    
+
     useEffect(() => {
         setCurrent(currentAmount)
     }, [currentAmount])
@@ -24,15 +24,15 @@ function SavingItem({ _id, goal, targetAmount, currentAmount, updateProgress, de
     }
 
     const handleUpdateProgress = () => {
-        const newAmount = prompt('Nhập số tiền bạn muốn thêm vào:', '0')
-        if (newAmount && !isNaN(newAmount)) {
-            const totalAmount = parseFloat(current) + parseFloat(newAmount)
-            setCurrent(totalAmount)
-            updateProgress(_id, totalAmount)
-            toast.success('Cập nhật tiến độ thành công!')
-        } else {
-            toast.error('Vui lòng nhập một số hợp lệ!')
-        }
+        setShowUpdateModal(true)
+    }
+
+    const confirmUpdateProgress = (newAmount) => {
+        const totalAmount = parseFloat(current) + newAmount
+        setCurrent(totalAmount)
+        updateProgress(_id, totalAmount)
+        toast.success('Cập nhật tiến độ thành công!')
+        setShowUpdateModal(false)
     }
 
     return (
@@ -65,13 +65,47 @@ function SavingItem({ _id, goal, targetAmount, currentAmount, updateProgress, de
                     onCancel={() => setShowConfirm(false)}
                 />
             )}
+
+            {showUpdateModal && (
+                <UpdateProgressModal
+                    onClose={() => setShowUpdateModal(false)}
+                    onSubmit={confirmUpdateProgress}
+                />
+            )}
         </>
     )
 }
 
+// Modal cập nhật tiến độ
+const UpdateProgressModal = ({ onClose, onSubmit }) => {
+    const [amount, setAmount] = useState('')
 
+    const handleSubmit = () => {
+        if (!isNaN(amount) && amount.trim() !== '') {
+            onSubmit(parseFloat(amount))
+        } else {
+            toast.error('Vui lòng nhập một số hợp lệ!')
+        }
+    }
 
-
+    return (
+        <ModalOverlay>
+            <ModalContent>
+                <h3>Cập nhật tiến độ</h3>
+                <input
+                    type="number"
+                    placeholder="Nhập số tiền muốn thêm"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                />
+                <div className="modal-actions">
+                    <button onClick={handleSubmit}>Xác nhận</button>
+                    <button onClick={onClose} className="cancel">Hủy</button>
+                </div>
+            </ModalContent>
+        </ModalOverlay>
+    )
+}
 
 const SavingItemStyled = styled.div`
     background: #FCF6F9;
@@ -187,4 +221,67 @@ const DeleteButtonStyled = styled.button`
     }
 `;
 
-export default SavingItem;
+const ModalOverlay = styled.div`
+    position: fixed;
+    top: 0; left: -200px;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    width: 320px;
+    text-align: center;
+
+    h3 {
+        margin-bottom: 1rem;
+        color: #222260;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: space-between;
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+
+            &:first-child {
+                background: var(--color-accent);
+                color: white;
+            }
+
+            &.cancel {
+                background: #ddd;
+                color: #333;
+            }
+
+            &:hover {
+                transform: scale(1.05);
+            }
+        }
+    }
+`;
+
+export default SavingItem

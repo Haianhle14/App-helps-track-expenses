@@ -6,7 +6,7 @@ import IncomeItem from '../IncomeItem/IncomeItem'
 import ExpenseForm from './ExpenseForm'
 
 function Expenses() {
-    const { expenses, getExpenses, deleteExpense, totalExpenses } = useGlobalContext()
+    const { expenses, getExpenses, deleteExpense, totalExpense } = useGlobalContext()
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 3
 
@@ -14,7 +14,6 @@ function Expenses() {
         getExpenses()
     }, [getExpenses])
 
-    // 👉 Sắp xếp chi tiêu theo ngày giảm dần
     const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date))
     const indexOfLastItem = currentPage * itemsPerPage
     const indexOfFirstItem = indexOfLastItem - itemsPerPage
@@ -30,7 +29,7 @@ function Expenses() {
             <InnerLayout>
                 <h1>Quản Lý Chi Tiêu</h1>
                 <h2 className="total-income">
-                    Tổng chi tiêu: <span>{totalExpenses().toLocaleString('vi-VN')}đ</span>
+                    Tổng chi tiêu: <span>{totalExpense().toLocaleString('vi-VN')}đ</span>
                 </h2>
 
                 <div className="income-content">

@@ -16,25 +16,36 @@ function History({ onClickViewAll }) {
                     </button>
                 )}
             </div>
-            {history.map((item, index) => {
-                const { _id, title, amount, type } = item;
 
-                const isExpense = type === 'Chi tiêu';
-                const color = isExpense ? 'red' : 'var(--color-green)';
-                const sign = isExpense ? '-' : '+';
+            {history && history.length > 0 ? (
+                history
+                    .filter(item => item.type !== 'Mục tiêu')
+                    .map((item, index) => {
+                        const { _id, title, amount, type } = item;
 
-                return (
-                    <div key={_id || index} className="history-item">
-                        <p style={{ color }}>
-                            {`${title} (${type})`}
-                        </p>
+                        const isExpense = type === 'Chi tiêu';
+                        const color = isExpense ? 'red' : 'var(--color-green)';
+                        const sign = isExpense ? '-' : '+';
 
-                        <p style={{ color }}>
-                            {`${sign}${(amount <= 0 ? 0 : amount).toLocaleString('vi-VN')}`}
-                        </p>
-                    </div>
-                );
-            })}
+                        const formattedAmount = (typeof amount === 'number' && !isNaN(amount)) 
+                            ? amount.toLocaleString('vi-VN')
+                            : '0';
+
+                        return (
+                            <div key={_id || index} className="history-item">
+                                <p style={{ color }}>
+                                    {`${title} (${type})`}
+                                </p>
+
+                                <p style={{ color }}>
+                                    {`${sign}${formattedAmount}`}
+                                </p>
+                            </div>
+                        );
+                    })
+            ) : (
+                <p className="no-data-text">Không có dữ liệu</p>
+            )}
         </HistoryStyled>
     );
 }
@@ -93,6 +104,13 @@ const HistoryStyled = styled.div`
             font-size: 1rem;
             font-weight: bold;
         }
+    }
+
+    .no-data-text {
+        text-align: center;
+        color: #888;
+        font-size: 1rem;
+        font-weight: normal;
     }
 `;
 

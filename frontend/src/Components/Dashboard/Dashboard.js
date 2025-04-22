@@ -15,7 +15,7 @@ import SearchTransactionModal from '../../History/SearchTransactionModal';
 function Dashboard() {
     const {
         user, is2FAVerified, setIs2FAVerified,
-        totalExpenses, incomes, expenses, totalIncome, totalBalance, debts,
+        totalExpense, incomes, expenses, totalIncome, totalBalance, debts,
         getIncomes, getExpenses, getDebts, savingsProgress
     } = useGlobalContext();
 
@@ -66,7 +66,7 @@ function Dashboard() {
                                 </div>
                                 <div className="expense" onClick={toggleExpensesList}>
                                     <h2>Tổng chi tiêu</h2>
-                                    <p>{totalExpenses().toLocaleString('vi-VN')}đ</p>
+                                    <p>{totalExpense().toLocaleString('vi-VN')}đ</p>
                                     {showExpensesList && (
                                         <div className="expenses-list">
                                             <h3>Danh sách chi tiêu</h3>

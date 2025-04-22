@@ -460,6 +460,11 @@ export const GlobalProvider = ({ children }) => {
       
         return summary;
     };
+
+    const totalExpense = () => {
+        const expenseSum = expenses.reduce((acc, expense) => acc + expense.amount, 0)
+        return expenseSum
+    }
       
     const totalExpenses = () => {
         const expenseSum = expenses.reduce((acc, expense) => acc + expense.amount, 0)
@@ -467,7 +472,7 @@ export const GlobalProvider = ({ children }) => {
         return expenseSum + savingSpent
     }
 
-    const totalBalance = () => totalIncome() - totalExpenses()
+    const totalBalance = () => totalIncome() - totalExpense()
 
     const recentTransactions = () => {
     return [
@@ -581,7 +586,7 @@ export const GlobalProvider = ({ children }) => {
                 savings, getSavings, addSaving, deleteSaving, updateSavingProgress,
                 debts, getDebts, addDebt, deleteDebt, totalDebts,
                 incomes, getIncomes, addIncome, deleteIncome, totalIncome,
-                expenses, getExpenses, addExpense, deleteExpense, totalExpenses,
+                expenses, getExpenses, addExpense, deleteExpense, totalExpenses, totalExpense,
                 totalBalance, transactionHistory, getMonthlySummary, savingsProgress,
                 error, setError,
                 get2FAQrCode, setup2FA, verify2FA, twoFactorQR, is2FAVerified, setIs2FAVerified, disable2FA,
