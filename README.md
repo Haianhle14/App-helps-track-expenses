@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/e8406f90-2542-4a47-9da3-e7d9781b853e)# Bắt đầu với Tạo ứng dụng React
+# Bắt đầu với Tạo ứng dụng React
 
 Dự án này đã được khởi động bằng: [Tạo ứng dụng React](https://github.com/facebook/create-react-app).
 
